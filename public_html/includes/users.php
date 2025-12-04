@@ -1,40 +1,24 @@
 <?php
 
-const USERS_FILE = __DIR__ . '/../../schema/data/users.json';
+use PDOException;
 
-function loadUsers(): array
-{
-    if (!file_exists(USERS_FILE)) {
-        return [];
-    }
-
-    $raw = file_get_contents(USERS_FILE);
-    $data = json_decode($raw, true);
-
-    return is_array($data) ? $data : [];
-}
-
-function saveUsers(array $users): void
-{
-    $json = json_encode($users, JSON_PRETTY_PRINT);
-    file_put_contents(USERS_FILE, $json, LOCK_EX);
-}
+require_once __DIR__ . '/db.php';
 
 function normalizeEmail(string $email): string
 {
     return strtolower(trim($email));
 }
 
-function findUserByEmail(string $email): ?array
+function mapRowToUser(array $row): array
 {
-    $needle = normalizeEmail($email);
-    foreach (loadUsers() as $user) {
-        if (normalizeEmail($user['email']) === $needle) {
-            return $user;
-        }
-    }
-
-    return null;
+    return [
+        'id' => $row['id'],
+        'name' => $row['name'],
+        'email' => $row['email'],
+        'createdAt' => isset($row['created_at'])
+            ? date(DATE_ATOM, strtotime($row['created_at']))
+            : ($row['createdAt'] ?? date(DATE_ATOM))
+    ];
 }
 
 function sanitizeUser(array $user): array
@@ -44,41 +28,75 @@ function sanitizeUser(array $user): array
     return $safe;
 }
 
-function createUser(string $name, string $email, string $password): array
+function getUserRowByEmail(string $email): ?array
 {
-    $users = loadUsers();
-    $normalizedEmail = normalizeEmail($email);
+    $pdo = getDbConnection();
+    $stmt = $pdo->prepare(
+        'SELECT id, name, email, password, created_at FROM users WHERE email = :email LIMIT 1'
+    );
+    $stmt->execute(['email' => normalizeEmail($email)]);
+    $row = $stmt->fetch();
 
-    foreach ($users as $existing) {
-        if (normalizeEmail($existing['email']) === $normalizedEmail) {
-            throw new RuntimeException('Email already registered. Please log in instead.');
-        }
+    return $row ?: null;
+}
+
+function findUserByEmail(string $email): ?array
+{
+    $row = getUserRowByEmail($email);
+    if (!$row) {
+        return null;
     }
 
-    $newUser = [
-        'id' => bin2hex(random_bytes(16)),
+    return mapRowToUser($row);
+}
+
+function createUser(string $name, string $email, string $password): array
+{
+    $pdo = getDbConnection();
+    $normalizedEmail = normalizeEmail($email);
+    $userId = bin2hex(random_bytes(16));
+    $hashed = password_hash($password, PASSWORD_BCRYPT);
+
+    try {
+        $stmt = $pdo->prepare(
+            'INSERT INTO users (id, name, email, password, created_at) VALUES (:id, :name, :email, :password, NOW())'
+        );
+        $stmt->execute([
+            'id' => $userId,
+            'name' => trim($name),
+            'email' => $normalizedEmail,
+            'password' => $hashed,
+        ]);
+    } catch (PDOException $exception) {
+        $sqlState = $exception->getCode();
+        $driverCode = $exception->errorInfo[1] ?? null;
+
+        if ($sqlState === '23000' || $driverCode === 1062) {
+            throw new RuntimeException('Email already registered. Please log in instead.');
+        }
+
+        throw $exception;
+    }
+
+    $row = getUserRowByEmail($normalizedEmail);
+    return $row ? mapRowToUser($row) : [
+        'id' => $userId,
         'name' => trim($name),
         'email' => $normalizedEmail,
-        'password' => password_hash($password, PASSWORD_BCRYPT),
         'createdAt' => date(DATE_ATOM)
     ];
-
-    $users[] = $newUser;
-    saveUsers($users);
-
-    return $newUser;
 }
 
 function verifyCredentials(string $email, string $password): ?array
 {
-    $user = findUserByEmail($email);
-    if (!$user) {
+    $row = getUserRowByEmail($email);
+    if (!$row) {
         return null;
     }
 
-    if (!password_verify($password, $user['password'])) {
+    if (!password_verify($password, $row['password'])) {
         return null;
     }
 
-    return $user;
+    return mapRowToUser($row);
 }
