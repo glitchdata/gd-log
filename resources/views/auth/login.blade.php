@@ -14,6 +14,18 @@
 <div class="grid">
     <section class="card">
         <h2>Sign in</h2>
+        @if (session('status'))
+            <div class="banner success">{{ session('status') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="banner error">
+                <ul style="margin:0;padding-left:1.25rem;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <label>
