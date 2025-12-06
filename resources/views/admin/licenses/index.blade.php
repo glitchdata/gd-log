@@ -38,8 +38,8 @@
             <tbody>
                 @forelse ($licenses as $license)
                     <tr style="background:var(--bg);">
-                        <td style="padding:0.9rem 0.75rem;font-weight:600;">{{ $license->name }}</td>
-                        <td style="padding:0.9rem 0.75rem;font-family:monospace;">{{ $license->product_code }}</td>
+                        <td style="padding:0.9rem 0.75rem;font-weight:600;">{{ $license->product->name ?? '—' }}</td>
+                        <td style="padding:0.9rem 0.75rem;font-family:monospace;">{{ $license->product->product_code ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $license->seats_used }} / {{ $license->seats_total }} ({{ $license->seats_available }} available)</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $license->expires_at ? $license->expires_at->format('M j, Y') : 'No expiry' }}</td>
                         <td style="padding:0.9rem 0.75rem; display:flex; gap:0.5rem;">

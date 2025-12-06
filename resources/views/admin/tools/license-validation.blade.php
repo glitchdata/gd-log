@@ -10,6 +10,7 @@
         <p class="lead">Send sample payloads to <code style="font-family:monospace;">POST /api/licenses/validate</code> without leaving the browser.</p>
     </div>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <a class="link" href="{{ route('admin.products.index') }}">Products</a>
         <a class="link" href="{{ route('admin.licenses.index') }}">Licenses</a>
         <a class="link" href="{{ route('admin.users.index') }}">Users</a>
     </div>

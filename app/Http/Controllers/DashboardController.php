@@ -12,7 +12,7 @@ class DashboardController extends Controller
     {
         return view('dashboard', [
             'user' => Auth::user(),
-            'licenses' => License::orderBy('name')->get(),
+            'licenses' => License::with('product')->orderBy('expires_at')->get(),
         ]);
     }
 }

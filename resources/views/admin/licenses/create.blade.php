@@ -22,9 +22,15 @@
     </div>
 @endif
 
+@if ($products->isEmpty())
+    <div class="banner error">
+        <p>Please add a product to the catalog before creating licenses.</p>
+    </div>
+@endif
+
 <div class="card">
     <form method="POST" action="{{ route('admin.licenses.store') }}">
-        @include('admin.licenses._form', ['license' => new \App\Models\License(), 'submitLabel' => 'Create license'])
+        @include('admin.licenses._form', ['license' => new \App\Models\License(), 'submitLabel' => 'Create license', 'products' => $products])
     </form>
 </div>
 @endsection

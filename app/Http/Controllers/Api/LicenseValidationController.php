@@ -11,7 +11,11 @@ class LicenseValidationController extends Controller
 {
     public function __invoke(ValidateLicenseRequest $request): JsonResponse
     {
-        $license = License::where('product_code', $request->input('product_code'))->first();
+        $license = License::with('product')
+            ->whereHas('product', function ($query) use ($request) {
+                $query->where('product_code', $request->input('product_code'));
+            })
+            ->first();
 
         if (! $license) {
             return response()->json([
@@ -34,10 +38,15 @@ class LicenseValidationController extends Controller
             'expires_at' => optional($license->expires_at)->toDateString(),
             'license' => [
                 'id' => $license->id,
-                'name' => $license->name,
-                'product_code' => $license->product_code,
                 'seats_total' => $license->seats_total,
                 'seats_used' => $license->seats_used,
+            ],
+            'product' => [
+                'id' => $license->product->id,
+                'name' => $license->product->name,
+                'product_code' => $license->product->product_code,
+                'vendor' => $license->product->vendor,
+                'category' => $license->product->category,
             ],
         ]);
     }

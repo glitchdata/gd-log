@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\LicenseController as AdminLicenseController;
 use App\Http\Controllers\Admin\LicenseValidationTestController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -32,6 +33,7 @@ Route::prefix('admin')
     ->group(function () {
         Route::redirect('/', '/admin/licenses')->name('home');
         Route::resource('licenses', AdminLicenseController::class)->except(['show']);
+        Route::resource('products', AdminProductController::class)->except(['show']);
         Route::resource('users', AdminUserController::class)->except(['show']);
         Route::get('tools/license-validation', LicenseValidationTestController::class)->name('tools.license-validation');
     });

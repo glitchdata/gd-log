@@ -23,6 +23,7 @@
         </div>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
             <a class="link" style="font-weight:600;" href="{{ route('admin.users.index') }}">Manage users →</a>
+            <a class="link" style="font-weight:600;" href="{{ route('admin.products.index') }}">Manage products →</a>
             <a class="link" style="font-weight:600;" href="{{ route('admin.licenses.index') }}">Manage licenses →</a>
             <a class="link" style="font-weight:600;" href="{{ route('admin.tools.license-validation') }}">Test API →</a>
         </div>
@@ -70,8 +71,8 @@
             <tbody>
                 @forelse ($licenses as $license)
                     <tr style="background:var(--bg);">
-                        <td style="padding:0.9rem 0.75rem;font-weight:600;color:var(--text);">{{ $license->name }}</td>
-                        <td style="padding:0.9rem 0.75rem;font-family:monospace;">{{ $license->product_code }}</td>
+                        <td style="padding:0.9rem 0.75rem;font-weight:600;color:var(--text);">{{ $license->product->name ?? '—' }}</td>
+                        <td style="padding:0.9rem 0.75rem;font-family:monospace;">{{ $license->product->product_code ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $license->seats_used }} / {{ $license->seats_total }}</td>
                         <td style="padding:0.9rem 0.75rem;color:{{ $license->seats_available > 0 ? 'var(--success)' : 'var(--error)' }};">
                             {{ $license->seats_available }}

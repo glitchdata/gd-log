@@ -1,18 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Admin · Users')
+@section('title', 'Admin · Products')
 
 @section('content')
 <header class="hero">
     <div>
         <p class="eyebrow">Admin</p>
-        <h1>User management</h1>
-        <p class="lead">Invite teammates, promote admins, and retire unused accounts.</p>
+        <h1>Product catalog</h1>
+        <p class="lead">Manage the master list of software products that licenses attach to.</p>
     </div>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-        <a class="link" href="{{ route('admin.products.index') }}">Products</a>
+        <a class="link" href="{{ route('dashboard') }}">Dashboard</a>
         <a class="link" href="{{ route('admin.licenses.index') }}">Licenses</a>
-        <a href="{{ route('admin.users.create') }}" class="link" style="font-weight:600;">+ New user</a>
+        <a class="link" href="{{ route('admin.users.index') }}">Users</a>
+        <a href="{{ route('admin.products.create') }}" class="link" style="font-weight:600;">+ New product</a>
     </div>
 </header>
 
@@ -28,22 +29,22 @@
             <thead>
                 <tr style="text-align:left;color:var(--muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">
                     <th style="padding:0 0.75rem;">Name</th>
-                    <th style="padding:0 0.75rem;">Email</th>
-                    <th style="padding:0 0.75rem;">Role</th>
-                    <th style="padding:0 0.75rem;">Created</th>
+                    <th style="padding:0 0.75rem;">Code</th>
+                    <th style="padding:0 0.75rem;">Vendor</th>
+                    <th style="padding:0 0.75rem;">Category</th>
                     <th style="padding:0 0.75rem;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($users as $user)
+                @forelse ($products as $product)
                     <tr style="background:var(--bg);">
-                        <td style="padding:0.9rem 0.75rem;font-weight:600;">{{ $user->name }}</td>
-                        <td style="padding:0.9rem 0.75rem;">{{ $user->email }}</td>
-                        <td style="padding:0.9rem 0.75rem;">{{ $user->is_admin ? 'Admin' : 'Member' }}</td>
-                        <td style="padding:0.9rem 0.75rem;">{{ $user->created_at->format('M j, Y') }}</td>
+                        <td style="padding:0.9rem 0.75rem;font-weight:600;">{{ $product->name }}</td>
+                        <td style="padding:0.9rem 0.75rem;font-family:monospace;">{{ $product->product_code }}</td>
+                        <td style="padding:0.9rem 0.75rem;">{{ $product->vendor ?? '—' }}</td>
+                        <td style="padding:0.9rem 0.75rem;">{{ $product->category ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
-                            <a class="link" href="{{ route('admin.users.edit', $user) }}">Edit</a>
-                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete this user?');">
+                            <a class="link" href="{{ route('admin.products.edit', $product) }}">Edit</a>
+                            <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Delete this product?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" style="background:none;border:none;color:var(--error);cursor:pointer;padding:0;">Delete</button>
@@ -52,17 +53,14 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">
-                            No users have been created yet.
-                        </td>
+                        <td colspan="5" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">No products yet.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-
     <div style="margin-top:1rem;">
-        {{ $users->links() }}
+        {{ $products->links() }}
     </div>
 </div>
 @endsection

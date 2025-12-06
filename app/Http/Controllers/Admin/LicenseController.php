@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLicenseRequest;
 use App\Http\Requests\UpdateLicenseRequest;
 use App\Models\License;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -14,13 +15,15 @@ class LicenseController extends Controller
     public function index(): View
     {
         return view('admin.licenses.index', [
-            'licenses' => License::orderBy('name')->paginate(10),
+            'licenses' => License::with('product')->latest()->paginate(10),
         ]);
     }
 
     public function create(): View
     {
-        return view('admin.licenses.create');
+        return view('admin.licenses.create', [
+            'products' => Product::orderBy('name')->get(),
+        ]);
     }
 
     public function store(StoreLicenseRequest $request): RedirectResponse
@@ -34,7 +37,10 @@ class LicenseController extends Controller
 
     public function edit(License $license): View
     {
-        return view('admin.licenses.edit', compact('license'));
+        return view('admin.licenses.edit', [
+            'license' => $license->load('product'),
+            'products' => Product::orderBy('name')->get(),
+        ]);
     }
 
     public function update(UpdateLicenseRequest $request, License $license): RedirectResponse

@@ -14,8 +14,7 @@ class StoreLicenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'product_code' => ['required', 'string', 'max:50', 'unique:licenses,product_code'],
+            'product_id' => ['required', 'exists:products,id'],
             'seats_total' => ['required', 'integer', 'min:1'],
             'seats_used' => ['nullable', 'integer', 'min:0', 'lte:seats_total'],
             'expires_at' => ['nullable', 'date'],

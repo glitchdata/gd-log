@@ -7,7 +7,7 @@ A Laravel 11 application that delivers an email/password login portal with regis
 - Guest-only routes for `/login` and `/register`, plus authenticated `/dashboard` (`web` guard) and `/logout` POST endpoint.
 - Controllers dedicated to login, registration, and dashboard rendering with session regeneration to prevent fixation.
 - Dashboard now highlights account details plus a license inventory table seeded with demo data.
-- Admin console for CRUD management of licenses (protected by an `is_admin` flag on users) plus user management for inviting, editing, or deprovisioning accounts.
+- Admin console for CRUD management of the product catalog, license seat allocations, and user onboarding/offboarding (all protected by an `is_admin` flag).
 - Lightweight API endpoint for validating licenses by product code (`POST /api/licenses/validate`).
 - Admin tools include an in-browser tester for the validation API (`/admin/tools/license-validation`).
 - Eloquent-powered `users` table migrations and a seeded demo account (`demo@example.com` / `password`).
@@ -52,8 +52,7 @@ A Laravel 11 application that delivers an email/password login portal with regis
 
 ### Admin access
 
-- The seeded `demo@example.com` user ships with `is_admin=true`, so it can reach `/admin/licenses`.
-- User admin lives at `/admin/users`, sharing the same `is_admin` guard.
+- The seeded `demo@example.com` user ships with `is_admin=true`, so it can reach `/admin/products`, `/admin/licenses`, and `/admin/users`.
 - API tester lives at `/admin/tools/license-validation` (admin-only) and fires requests straight to `/api/licenses/validate` for quick manual checks.
 - To promote another user, set `is_admin` to `1` in the `users` table or run a quick tinker command:
 	```bash
@@ -84,10 +83,15 @@ Example response:
 	"expires_at": "2026-04-01",
 	"license": {
 		"id": 1,
-		"name": "Analytics Pro",
-		"product_code": "LIC-ANL-01",
 		"seats_total": 25,
 		"seats_used": 18
+	},
+	"product": {
+		"id": 7,
+		"name": "Analytics Pro",
+		"product_code": "LIC-ANL-01",
+		"vendor": "Glitchdata",
+		"category": "Analytics"
 	}
 }
 ```

@@ -9,9 +9,10 @@ class License extends Model
 {
     use HasFactory;
 
+    protected $with = ['product'];
+
     protected $fillable = [
-        'name',
-        'product_code',
+        'product_id',
         'seats_total',
         'seats_used',
         'expires_at',
@@ -24,5 +25,10 @@ class License extends Model
     public function getSeatsAvailableAttribute(): int
     {
         return max(0, $this->seats_total - $this->seats_used);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }
