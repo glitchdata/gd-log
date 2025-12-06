@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\License;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -16,6 +17,7 @@ class DashboardController extends Controller
                 ->where('user_id', Auth::id())
                 ->orderBy('expires_at')
                 ->get(),
+            'products' => Product::orderBy('name')->get(),
         ]);
     }
 }

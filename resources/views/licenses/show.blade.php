@@ -12,6 +12,12 @@
     <a class="link" href="{{ route('dashboard') }}" style="font-weight:600;">&larr; Back to dashboard</a>
 </header>
 
+@if (session('status'))
+    <div class="banner success">
+        {{ session('status') }}
+    </div>
+@endif
+
 <section class="card">
     <h2 style="margin-top:0;">Entitlement snapshot</h2>
     <dl class="details">

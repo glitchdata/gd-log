@@ -28,6 +28,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware('auth')
     ->name('dashboard');
 
+Route::post('/dashboard/licenses', [UserLicenseController::class, 'store'])
+    ->middleware('auth')
+    ->name('licenses.store');
+
 Route::get('/dashboard/licenses/{license}', [UserLicenseController::class, 'show'])
     ->middleware('auth')
     ->name('licenses.show');

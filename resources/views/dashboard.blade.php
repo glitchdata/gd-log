@@ -15,6 +15,12 @@
     </form>
 </header>
 
+@if (session('status'))
+    <div class="banner success">
+        {{ session('status') }}
+    </div>
+@endif
+
 @if ($user->is_admin)
     <section class="card" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
         <div>
@@ -46,6 +52,50 @@
             <dd>{{ $user->created_at->format('F j, Y') }}</dd>
         </div>
     </dl>
+</section>
+
+<section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <div>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">Purchase access</p>
+            <h2 style="margin:0;">Add another license</h2>
+        </div>
+        <span style="font-size:0.9rem;color:var(--muted);">Licenses assign directly to your account</span>
+    </div>
+
+    @if ($errors->any())
+        <div class="banner error" style="margin-top:1rem;">
+            <ul style="margin:0;padding-left:1.25rem;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if ($products->isEmpty())
+        <p style="margin-top:1.25rem;color:var(--muted);">No products are available for purchase right now. Please check back later.</p>
+    @else
+        <form method="POST" action="{{ route('licenses.store') }}" style="display:grid;gap:1rem;margin-top:1.5rem;">
+            @csrf
+            <label>
+                <span>Product</span>
+                <select name="product_id" required style="width:100%;border:1px solid rgba(15,23,42,0.15);border-radius:0.9rem;padding:0.85rem 1rem;font-size:1rem;">
+                    <option value="" disabled {{ old('product_id') ? '' : 'selected' }}>Choose a product</option>
+                    @foreach ($products as $product)
+                        <option value="{{ $product->id }}" {{ (int) old('product_id') === $product->id ? 'selected' : '' }}>
+                            {{ $product->name }} ({{ $product->product_code }})
+                        </option>
+                    @endforeach
+                </select>
+            </label>
+            <label>
+                <span>Seats needed</span>
+                <input type="number" name="seats_total" min="1" value="{{ old('seats_total', 1) }}" required>
+            </label>
+            <button type="submit">Purchase license</button>
+        </form>
+    @endif
 </section>
 
 <section class="card">
