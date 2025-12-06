@@ -51,8 +51,8 @@
 <section class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
         <div>
-            <p class="eyebrow" style="margin-bottom:0.35rem;">License inventory</p>
-            <h2 style="margin:0;">Available licenses</h2>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">Your licenses</p>
+            <h2 style="margin:0;">Assigned entitlements</h2>
         </div>
         <span style="font-weight:600;color:var(--primary);">{{ $licenses->count() }} active</span>
     </div>
@@ -84,7 +84,7 @@
                 @empty
                     <tr>
                         <td colspan="5" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">
-                            No licenses have been provisioned yet.
+                            No licenses have been assigned to you yet.
                         </td>
                     </tr>
                 @endforelse
