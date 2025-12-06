@@ -59,6 +59,31 @@
             color: #fff;
             box-shadow: none;
         }
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
+        .site-nav a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .site-nav a.brand {
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        .site-nav .nav-links {
+            display: flex;
+            gap: 0.75rem;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
         form { display: flex; flex-direction: column; gap: 1rem; }
         label span { display: block; margin-bottom: 0.35rem; font-size: 0.9rem; }
         input {
@@ -118,6 +143,19 @@
 </head>
 <body>
     <div class="page">
+        <nav class="site-nav">
+            <a href="{{ route('shop') }}" class="brand">Glitchdata</a>
+            <div class="nav-links">
+                <a href="{{ route('shop') }}">Shop</a>
+                @auth
+                    <a href="{{ route('dashboard') }}">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}">Login</a>
+                    <a href="{{ route('register') }}">Register</a>
+                @endauth
+            </div>
+        </nav>
+
         @if (session('status'))
             <div class="banner success">
                 <p class="status">{{ session('status') }}</p>
