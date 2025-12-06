@@ -18,6 +18,8 @@ class DashboardController extends Controller
                 ->orderBy('expires_at')
                 ->get(),
             'products' => Product::orderBy('name')->get(),
+            'paypalClientId' => config('paypal.client_id'),
+            'paypalCurrency' => config('paypal.currency', 'USD'),
         ]);
     }
 }

@@ -7,12 +7,12 @@ A Laravel 11 application that delivers an email/password login portal with regis
 - Guest-only routes for `/login` and `/register`, plus authenticated `/dashboard` (`web` guard) and `/logout` POST endpoint.
 - Controllers dedicated to login, registration, and dashboard rendering with session regeneration to prevent fixation.
 - Dashboard now highlights account details plus a license inventory table seeded with demo data.
-- Dashboard offers a self-serve purchase form with per-seat pricing, product-defined license durations, and a mock credit card checkout so users can add new licenses tied to their account in seconds.
+- Dashboard offers a self-serve purchase form with per-seat pricing, product-defined license durations, and a PayPal-powered checkout so users can add new licenses tied to their account in seconds.
 - Licenses now maintain allow-listed domains via `license_domains` records so you can restrict API validations or audits to specific tenants.
 - Every license automatically receives a globally unique identifier (e.g., `ABCD-EFGH-IJKL`) for auditing, search, and API integrations.
 - Admin console for CRUD management of the product catalog, license seat allocations, optional user ownership assignments, and user onboarding/offboarding (all protected by an `is_admin` flag).
 - Public-facing homepage (`/`) spotlights the platform, links to the external shop (`/shop`), and surfaces an API Lab (`/api-lab`) so prospects can validate licenses without signing in.
-- Lightweight API endpoint for validating licenses by product code (`POST /api/licenses/validate`).
+- Lightweight API endpoint for validating licenses by license code (`POST /api/licenses/validate`).
 - Admin tools include an in-browser tester for the validation API (`/admin/tools/license-validation`).
 - Eloquent-powered `users` table migrations and a seeded demo account (`demo@example.com` / `password`).
 - Blade layout + views that provide the polished UI without requiring a frontend build step (Tailwind/Vite can be added later).
@@ -67,10 +67,10 @@ A Laravel 11 application that delivers an email/password login portal with regis
 
 - Every product now carries a `price` (stored as a decimal), representing the per-seat cost in USD.
 - Products also store a `duration_months`, which determines how long a purchased license stays active before renewal.
-- From `/dashboard`, authenticated users can select a product, choose the number of seats, and enter mock credit card details.
+- From `/dashboard`, authenticated users can select a product, choose the number of seats, include an optional domain, and complete the purchase with PayPal.
 - Buyers can optionally provide a primary domain during checkout; admins can edit domain allow-lists later from the license management screen.
-- The checkout flow computes the total (`price × seats`), sets the expiration date by adding `duration_months` to the current time, and calls a simple in-app gateway (`App\Services\FakePaymentGateway`) that simulates a charge and returns a transaction ID for the success banner.
-- Real processors would replace this service; for now, any 12+ digit card number works unless the sandbox intentionally rejects the amount as part of the demo logic.
+- The checkout flow computes the total (`price × seats`), requests a PayPal order via the REST API, caches the purchase parameters server-side, and captures the order before issuing the license and success banner.
+- Provide valid `PAYPAL_CLIENT_ID`, `PAYPAL_SECRET`, `PAYPAL_ENVIRONMENT`, `PAYPAL_CURRENCY`, and `PAYPAL_INTENT` values in `.env` so the SDK loads and the Orders API can authenticate against Sandbox or Live accounts.
 
 ## License validation API
 

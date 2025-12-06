@@ -65,32 +65,16 @@
                 </span>
                 <span id="shop-purchase-total">$0.00</span>
             </div>
-            <label>
-                <span>Cardholder name</span>
-                <input type="text" name="card_name" value="{{ old('card_name', auth()->user()->name) }}" required>
-            </label>
-            <label>
-                <span>Card number</span>
-                <input type="text" name="card_number" inputmode="numeric" placeholder="4242 4242 4242 4242" value="{{ old('card_number') }}" required>
-            </label>
-            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;">
-                <label>
-                    <span>Exp. month</span>
-                    <input type="number" name="card_exp_month" min="1" max="12" value="{{ old('card_exp_month') }}" required>
-                </label>
-                <label>
-                    <span>Exp. year</span>
-                    <input type="number" name="card_exp_year" min="{{ now()->year }}" max="{{ now()->year + 10 }}" value="{{ old('card_exp_year') }}" required>
-                </label>
-                <label>
-                    <span>CVC</span>
-                    <input type="number" name="card_cvc" inputmode="numeric" value="{{ old('card_cvc') }}" required>
-                </label>
-            </div>
+            <input type="hidden" name="paypal_order_id" id="shop-paypal-order">
+            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Approve the popup to finish.</p>
+            <div id="paypal-buttons-shop"></div>
+            <p id="paypal-errors-shop" style="display:none;color:var(--error);font-weight:600;"></p>
             @error('payment')
                 <p style="color:var(--error);font-weight:600;">{{ $message }}</p>
             @enderror
-            <button type="submit">Purchase license</button>
+            @if (! config('paypal.client_id'))
+                <p style="color:var(--error);font-weight:600;">Set PAYPAL_CLIENT_ID to enable purchase flow.</p>
+            @endif
         </form>
     </section>
 @else
@@ -107,24 +91,128 @@
 
 @auth
     @push('scripts')
-    <script>
-    (function () {
-        const seatsInput = document.getElementById('shop-seats-input');
-        const totalEl = document.getElementById('shop-purchase-total');
-        const pricePerSeat = {{ number_format($product->price, 2, '.', '') }};
-        if (!seatsInput || !totalEl) {
-            return;
-        }
+        @if (config('paypal.client_id'))
+            <script src="https://www.paypal.com/sdk/js?client-id={{ config('paypal.client_id') }}&currency={{ config('paypal.currency') }}" data-sdk-integration-source="button-factory"></script>
+        @endif
+        <script>
+        (function () {
+            const seatsInput = document.getElementById('shop-seats-input');
+            const totalEl = document.getElementById('shop-purchase-total');
+            const paypalErrors = document.getElementById('paypal-errors-shop');
+            const paypalOrderInput = document.getElementById('shop-paypal-order');
+            const form = document.getElementById('shop-purchase-form');
+            const domainInput = form ? form.querySelector('input[name="domain"]') : null;
+            const pricePerSeat = {{ number_format($product->price, 2, '.', '') }};
 
-        const update = () => {
-            const seats = parseInt(seatsInput.value, 10) || 0;
-            const total = seats * pricePerSeat;
-            totalEl.textContent = total > 0 ? `$${total.toFixed(2)}` : '$0.00';
-        };
+            const update = () => {
+                if (!seatsInput || !totalEl) {
+                    return;
+                }
+                const seats = parseInt(seatsInput.value, 10) || 0;
+                const total = seats * pricePerSeat;
+                totalEl.textContent = total > 0 ? `$${total.toFixed(2)}` : '$0.00';
+                if (paypalOrderInput) {
+                    paypalOrderInput.value = '';
+                }
+                if (form) {
+                    form.dataset.paypalReady = 'false';
+                }
+            };
 
-        seatsInput.addEventListener('input', update);
-        update();
-    })();
-    </script>
+            if (seatsInput) {
+                seatsInput.addEventListener('input', update);
+            }
+            update();
+
+            if (form) {
+                form.dataset.paypalReady = 'false';
+                form.addEventListener('submit', (event) => {
+                    if (form.dataset.paypalReady !== 'true') {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            const showError = (message) => {
+                if (!paypalErrors) {
+                    return;
+                }
+                paypalErrors.textContent = message;
+                paypalErrors.style.display = 'block';
+            };
+
+            const clearError = () => {
+                if (paypalErrors) {
+                    paypalErrors.style.display = 'none';
+                }
+            };
+
+            if (window.paypal && document.getElementById('paypal-buttons-shop')) {
+                paypal.Buttons({
+                    style: {
+                        layout: 'vertical',
+                        color: 'gold',
+                        shape: 'rect',
+                    },
+                    createOrder: async () => {
+                        clearError();
+                        if (!form) {
+                            throw new Error('Form not ready.');
+                        }
+                        const payload = {
+                            product_id: form.querySelector('input[name="product_id"]').value,
+                            seats_total: parseInt(seatsInput.value, 10) || 1,
+                            domain: domainInput ? domainInput.value : null,
+                        };
+                        const response = await fetch('{{ route('paypal.orders.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                            body: JSON.stringify(payload),
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Unable to create a PayPal order.');
+                        }
+                        paypalOrderInput.value = data.order_id;
+                        return data.order_id;
+                    },
+                    onApprove: (data) => {
+                        clearError();
+                        if (paypalOrderInput) {
+                            paypalOrderInput.value = data.orderID;
+                        }
+                        if (form) {
+                            form.dataset.paypalReady = 'true';
+                            form.submit();
+                        }
+                    },
+                    onCancel: () => {
+                        showError('PayPal checkout was cancelled.');
+                        if (paypalOrderInput) {
+                            paypalOrderInput.value = '';
+                        }
+                        if (form) {
+                            form.dataset.paypalReady = 'false';
+                        }
+                    },
+                    onError: (err) => {
+                        showError(err && err.message ? err.message : 'PayPal reported an error.');
+                        if (paypalOrderInput) {
+                            paypalOrderInput.value = '';
+                        }
+                        if (form) {
+                            form.dataset.paypalReady = 'false';
+                        }
+                    }
+                }).render('#paypal-buttons-shop');
+            } else if (!window.paypal && document.getElementById('paypal-buttons-shop')) {
+                showError('PayPal SDK is not available.');
+            }
+        })();
+        </script>
     @endpush
 @endauth

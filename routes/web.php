@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PayPalOrderController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserLicenseController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::post('/dashboard/licenses', [UserLicenseController::class, 'store'])
     ->middleware('auth')
     ->name('licenses.store');
+
+Route::post('/paypal/orders', [PayPalOrderController::class, 'store'])
+    ->middleware('auth')
+    ->name('paypal.orders.store');
 
 Route::get('/dashboard/licenses/{license}', [UserLicenseController::class, 'show'])
     ->middleware('auth')

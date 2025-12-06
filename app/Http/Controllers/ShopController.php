@@ -16,6 +16,10 @@ class ShopController extends Controller
 
     public function show(Product $product): View
     {
-        return view('shop.show', compact('product'));
+        return view('shop.show', [
+            'product' => $product,
+            'paypalClientId' => config('paypal.client_id'),
+            'paypalCurrency' => config('paypal.currency', 'USD'),
+        ]);
     }
 }

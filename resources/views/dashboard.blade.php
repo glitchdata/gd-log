@@ -107,32 +107,16 @@
                 </span>
                 <span id="purchase-total">$0.00</span>
             </div>
-            <label>
-                <span>Cardholder name</span>
-                <input type="text" name="card_name" value="{{ old('card_name', $user->name) }}" required>
-            </label>
-            <label>
-                <span>Card number</span>
-                <input type="text" name="card_number" inputmode="numeric" placeholder="4242 4242 4242 4242" value="{{ old('card_number') }}" required>
-            </label>
-            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;">
-                <label>
-                    <span>Exp. month</span>
-                    <input type="number" name="card_exp_month" min="1" max="12" value="{{ old('card_exp_month') }}" required>
-                </label>
-                <label>
-                    <span>Exp. year</span>
-                    <input type="number" name="card_exp_year" min="{{ now()->year }}" max="{{ now()->year + 10 }}" value="{{ old('card_exp_year') }}" required>
-                </label>
-                <label>
-                    <span>CVC</span>
-                    <input type="number" name="card_cvc" inputmode="numeric" value="{{ old('card_cvc') }}" required>
-                </label>
-            </div>
+            <input type="hidden" name="paypal_order_id" id="paypal-order-id">
+            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Select your seats, then approve the payment when the PayPal window opens.</p>
+            <div id="paypal-buttons-dashboard"></div>
+            <p id="paypal-errors-dashboard" style="display:none;color:var(--error);font-weight:600;"></p>
             @error('payment')
                 <p style="color:var(--error);font-weight:600;">{{ $message }}</p>
             @enderror
-            <button type="submit">Purchase license</button>
+            @if (! $paypalClientId)
+                <p style="color:var(--error);font-weight:600;">Set PAYPAL_CLIENT_ID and PAYPAL_SECRET in your environment file to enable checkout.</p>
+            @endif
         </form>
     @endif
 </section>
@@ -190,17 +174,35 @@
 @endsection
 
 @push('scripts')
+@if ($paypalClientId)
+    <script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency={{ $paypalCurrency ?? 'USD' }}" data-sdk-integration-source="button-factory"></script>
+@endif
 <script>
 (function () {
     const select = document.getElementById('product-select');
     const seats = document.getElementById('seats-input');
     const total = document.getElementById('purchase-total');
     const durationText = document.getElementById('duration-text');
-    if (!select || !seats || !total || !durationText) {
-        return;
-    }
+    const form = document.getElementById('purchase-form');
+    const domainInput = form ? form.querySelector('input[name="domain"]') : null;
+    const orderInput = document.getElementById('paypal-order-id');
+    const paypalErrors = document.getElementById('paypal-errors-dashboard');
+    const paypalEnabled = {{ $paypalClientId ? 'true' : 'false' }};
+
+    const clearOrder = () => {
+        if (orderInput) {
+            orderInput.value = '';
+        }
+        if (form) {
+            form.dataset.paypalReady = 'false';
+        }
+    };
 
     const updateTotal = () => {
+        if (!select || !seats || !total || !durationText) {
+            return;
+        }
+
         const price = parseFloat(select.selectedOptions[0]?.dataset.price || '0');
         const duration = parseInt(select.selectedOptions[0]?.dataset.duration || '0', 10);
         const seatCount = parseInt(seats.value, 10) || 0;
@@ -209,9 +211,123 @@
         durationText.textContent = duration > 0 ? duration : '—';
     };
 
-    select.addEventListener('change', updateTotal);
-    seats.addEventListener('input', updateTotal);
+    if (select) {
+        select.addEventListener('change', () => {
+            clearOrder();
+            updateTotal();
+        });
+    }
+
+    if (seats) {
+        seats.addEventListener('input', () => {
+            clearOrder();
+            updateTotal();
+        });
+    }
+
     updateTotal();
+
+    const showError = (message) => {
+        if (!paypalErrors) {
+            return;
+        }
+
+        paypalErrors.textContent = message;
+        paypalErrors.style.display = 'block';
+    };
+
+    if (form) {
+        form.dataset.paypalReady = 'false';
+        form.addEventListener('submit', (event) => {
+            if (form.dataset.paypalReady !== 'true') {
+                event.preventDefault();
+            }
+        });
+    }
+
+    const renderButtons = () => {
+        const container = document.getElementById('paypal-buttons-dashboard');
+        if (!container || !paypalEnabled) {
+            return;
+        }
+
+        if (!window.paypal) {
+            showError('Unable to load the PayPal SDK. Verify PAYPAL_CLIENT_ID.');
+            return;
+        }
+
+        paypal.Buttons({
+            style: {
+                layout: 'horizontal',
+                label: 'pay',
+                color: 'gold',
+                shape: 'rect',
+            },
+            createOrder: async () => {
+                clearOrder();
+                if (paypalErrors) {
+                    paypalErrors.style.display = 'none';
+                }
+
+                if (!select || !select.value) {
+                    throw new Error('Select a product before checking out.');
+                }
+
+                const seatsValue = parseInt(seats ? seats.value : '1', 10) || 1;
+                const payload = {
+                    product_id: select.value,
+                    seats_total: seatsValue,
+                    domain: domainInput ? domainInput.value : null,
+                };
+
+                const response = await fetch('{{ route('paypal.orders.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Unable to create a PayPal order.');
+                }
+
+                if (orderInput) {
+                    orderInput.value = data.order_id;
+                }
+
+                return data.order_id;
+            },
+            onApprove: (data) => {
+                if (!form) {
+                    return;
+                }
+
+                if (orderInput) {
+                    orderInput.value = data.orderID;
+                }
+
+                if (paypalErrors) {
+                    paypalErrors.style.display = 'none';
+                }
+                form.dataset.paypalReady = 'true';
+                form.submit();
+            },
+            onCancel: () => {
+                showError('PayPal checkout was cancelled.');
+                clearOrder();
+            },
+            onError: (err) => {
+                showError(err?.message || 'PayPal reported an unexpected error.');
+                clearOrder();
+            },
+        }).render('#paypal-buttons-dashboard');
+    };
+
+    renderButtons();
 })();
 </script>
 @endpush

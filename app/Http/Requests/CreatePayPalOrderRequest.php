@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PurchaseLicenseRequest extends FormRequest
+class CreatePayPalOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +17,6 @@ class PurchaseLicenseRequest extends FormRequest
             'product_id' => ['required', 'exists:products,id'],
             'seats_total' => ['required', 'integer', 'min:1', 'max:500'],
             'domain' => ['nullable', 'string', 'max:255'],
-            'paypal_order_id' => ['required', 'string', 'max:255'],
         ];
     }
 }

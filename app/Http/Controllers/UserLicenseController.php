@@ -5,15 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PurchaseLicenseRequest;
 use App\Models\License;
 use App\Models\Product;
-use App\Services\FakePaymentGateway;
+use App\Services\PayPalClient;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class UserLicenseController extends Controller
 {
-    public function __construct(private FakePaymentGateway $payments)
+    public function __construct(private PayPalClient $paypal)
     {
     }
 
@@ -31,43 +32,88 @@ class UserLicenseController extends Controller
         $data = $request->validated();
         $product = Product::findOrFail($data['product_id']);
         $seats = (int) $data['seats_total'];
-        $total = round((float) $product->price * $seats, 2);
+        $cacheKey = $this->orderCacheKey($data['paypal_order_id']);
+        $cachedOrder = Cache::get($cacheKey);
 
-        $cardNumber = preg_replace('/\D/', '', $data['card_number']);
+        if (! $cachedOrder || ($cachedOrder['user_id'] ?? null) !== $request->user()->id) {
+            return back()
+                ->withErrors(['payment' => 'PayPal session expired. Please start checkout again.'])
+                ->withInput($request->except('paypal_order_id'));
+        }
+
+        if ((int) $cachedOrder['product_id'] !== $product->id || (int) $cachedOrder['seats_total'] !== $seats) {
+            return back()
+                ->withErrors(['payment' => 'Purchase details changed. Please recreate the PayPal order.'])
+                ->withInput($request->except('paypal_order_id'));
+        }
+
+        $total = (float) $cachedOrder['total'];
 
         try {
-            $transactionId = $this->payments->charge([
-                'name' => $data['card_name'],
-                'number' => $cardNumber,
-                'exp_month' => $data['card_exp_month'],
-                'exp_year' => $data['card_exp_year'],
-                'cvc' => $data['card_cvc'],
-            ], (int) round($total * 100));
+            $capture = $this->paypal->captureOrder($data['paypal_order_id']);
         } catch (Exception $e) {
             return back()
                 ->withErrors(['payment' => $e->getMessage()])
-                ->withInput();
+                ->withInput($request->except('paypal_order_id'));
+        }
+
+        $captureSummary = $this->captureSummary($capture);
+
+        if ($captureSummary['status'] !== 'COMPLETED') {
+            return back()
+                ->withErrors(['payment' => 'PayPal did not complete the transaction.'])
+                ->withInput($request->except('paypal_order_id'));
+        }
+
+        if (abs($captureSummary['amount'] - $total) > 0.01) {
+            return back()
+                ->withErrors(['payment' => 'Captured amount does not match the expected total.'])
+                ->withInput($request->except('paypal_order_id'));
         }
 
         $duration = max(1, (int) ($product->duration_months ?? 12));
+        $domainInput = $cachedOrder['domain'] ?? ($data['domain'] ?? null);
 
-        $license = License::create([
-            'product_id' => $product->id,
-            'user_id' => $request->user()->id,
-            'seats_total' => $seats,
-            'seats_used' => 0,
-            'expires_at' => now()->addMonths($duration),
-        ]);
+        try {
+            $license = License::create([
+                'product_id' => $product->id,
+                'user_id' => $request->user()->id,
+                'seats_total' => $seats,
+                'seats_used' => 0,
+                'expires_at' => now()->addMonths($duration),
+            ]);
 
-        if ($domain = $data['domain'] ?? null) {
-            $normalized = strtolower(trim($domain));
-            if ($normalized !== '') {
-                $license->domains()->create(['domain' => $normalized]);
+            if ($domainInput) {
+                $normalized = strtolower(trim($domainInput));
+                if ($normalized !== '') {
+                    $license->domains()->create(['domain' => $normalized]);
+                }
             }
+        } finally {
+            Cache::forget($cacheKey);
         }
+
+        $transactionId = $captureSummary['transaction_id'] ?? 'N/A';
 
         return redirect()
             ->route('licenses.show', $license)
-            ->with('status', 'License purchased successfully. Transaction '.$transactionId.' · Total $'.number_format($total, 2));
+            ->with('status', 'License purchased successfully. PayPal capture '.$transactionId.' · Total $'.number_format($total, 2));
+    }
+
+    private function orderCacheKey(string $orderId): string
+    {
+        return config('paypal.order_cache_prefix', 'paypal:order:').$orderId;
+    }
+
+    private function captureSummary(array $capture): array
+    {
+        $captureNode = data_get($capture, 'purchase_units.0.payments.captures.0', []);
+
+        return [
+            'status' => $captureNode['status'] ?? null,
+            'amount' => isset($captureNode['amount']['value']) ? (float) $captureNode['amount']['value'] : 0.0,
+            'currency' => $captureNode['amount']['currency_code'] ?? null,
+            'transaction_id' => $captureNode['id'] ?? null,
+        ];
     }
 }
