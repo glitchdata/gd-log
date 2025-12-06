@@ -76,23 +76,52 @@
     @if ($products->isEmpty())
         <p style="margin-top:1.25rem;color:var(--muted);">No products are available for purchase right now. Please check back later.</p>
     @else
-        <form method="POST" action="{{ route('licenses.store') }}" style="display:grid;gap:1rem;margin-top:1.5rem;">
+        <form method="POST" action="{{ route('licenses.store') }}" style="display:grid;gap:1rem;margin-top:1.5rem;" id="purchase-form">
             @csrf
             <label>
                 <span>Product</span>
-                <select name="product_id" required style="width:100%;border:1px solid rgba(15,23,42,0.15);border-radius:0.9rem;padding:0.85rem 1rem;font-size:1rem;">
+                <select name="product_id" id="product-select" required style="width:100%;border:1px solid rgba(15,23,42,0.15);border-radius:0.9rem;padding:0.85rem 1rem;font-size:1rem;">
                     <option value="" disabled {{ old('product_id') ? '' : 'selected' }}>Choose a product</option>
                     @foreach ($products as $product)
-                        <option value="{{ $product->id }}" {{ (int) old('product_id') === $product->id ? 'selected' : '' }}>
-                            {{ $product->name }} ({{ $product->product_code }})
+                        <option value="{{ $product->id }}" data-price="{{ number_format($product->price, 2, '.', '') }}" {{ (int) old('product_id') === $product->id ? 'selected' : '' }}>
+                            {{ $product->name }} ({{ $product->product_code }}) · ${{ number_format($product->price, 2) }}/seat
                         </option>
                     @endforeach
                 </select>
             </label>
             <label>
                 <span>Seats needed</span>
-                <input type="number" name="seats_total" min="1" value="{{ old('seats_total', 1) }}" required>
+                <input type="number" name="seats_total" id="seats-input" min="1" value="{{ old('seats_total', 1) }}" required>
             </label>
+            <div style="padding:0.75rem 1rem;background:var(--bg);border-radius:0.75rem;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+                <span>Estimated total</span>
+                <span id="purchase-total">$0.00</span>
+            </div>
+            <label>
+                <span>Cardholder name</span>
+                <input type="text" name="card_name" value="{{ old('card_name', $user->name) }}" required>
+            </label>
+            <label>
+                <span>Card number</span>
+                <input type="text" name="card_number" inputmode="numeric" placeholder="4242 4242 4242 4242" value="{{ old('card_number') }}" required>
+            </label>
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;">
+                <label>
+                    <span>Exp. month</span>
+                    <input type="number" name="card_exp_month" min="1" max="12" value="{{ old('card_exp_month') }}" required>
+                </label>
+                <label>
+                    <span>Exp. year</span>
+                    <input type="number" name="card_exp_year" min="{{ now()->year }}" max="{{ now()->year + 10 }}" value="{{ old('card_exp_year') }}" required>
+                </label>
+                <label>
+                    <span>CVC</span>
+                    <input type="number" name="card_cvc" inputmode="numeric" value="{{ old('card_cvc') }}" required>
+                </label>
+            </div>
+            @error('payment')
+                <p style="color:var(--error);font-weight:600;">{{ $message }}</p>
+            @enderror
             <button type="submit">Purchase license</button>
         </form>
     @endif
@@ -148,3 +177,27 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const select = document.getElementById('product-select');
+    const seats = document.getElementById('seats-input');
+    const total = document.getElementById('purchase-total');
+    if (!select || !seats || !total) {
+        return;
+    }
+
+    const updateTotal = () => {
+        const price = parseFloat(select.selectedOptions[0]?.dataset.price || '0');
+        const seatCount = parseInt(seats.value, 10) || 0;
+        const amount = price * seatCount;
+        total.textContent = amount > 0 ? `$${amount.toFixed(2)}` : '$0.00';
+    };
+
+    select.addEventListener('change', updateTotal);
+    seats.addEventListener('input', updateTotal);
+    updateTotal();
+})();
+</script>
+@endpush

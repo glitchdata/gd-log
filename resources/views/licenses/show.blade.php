@@ -30,6 +30,10 @@
             <dd style="font-family:monospace;">{{ $license->product->product_code ?? '—' }}</dd>
         </div>
         <div>
+            <dt>Per-seat rate</dt>
+            <dd>${{ number_format($license->product->price ?? 0, 2) }}</dd>
+        </div>
+        <div>
             <dt>License ID</dt>
             <dd>#{{ $license->id }}</dd>
         </div>
@@ -44,6 +48,10 @@
         <div>
             <dt>Seats available</dt>
             <dd style="color:{{ $license->seats_available > 0 ? 'var(--success)' : 'var(--error)' }};">{{ $license->seats_available }}</dd>
+        </div>
+        <div>
+            <dt>Purchase total</dt>
+            <dd>${{ number_format(($license->product->price ?? 0) * $license->seats_total, 2) }}</dd>
         </div>
         <div>
             <dt>Expires</dt>

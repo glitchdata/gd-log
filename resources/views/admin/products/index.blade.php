@@ -30,6 +30,7 @@
                 <tr style="text-align:left;color:var(--muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">
                     <th style="padding:0 0.75rem;">Name</th>
                     <th style="padding:0 0.75rem;">Code</th>
+                    <th style="padding:0 0.75rem;">Price</th>
                     <th style="padding:0 0.75rem;">Vendor</th>
                     <th style="padding:0 0.75rem;">Category</th>
                     <th style="padding:0 0.75rem;">Actions</th>
@@ -40,6 +41,7 @@
                     <tr style="background:var(--bg);">
                         <td style="padding:0.9rem 0.75rem;font-weight:600;">{{ $product->name }}</td>
                         <td style="padding:0.9rem 0.75rem;font-family:monospace;">{{ $product->product_code }}</td>
+                        <td style="padding:0.9rem 0.75rem;">${{ number_format($product->price, 2) }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $product->vendor ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $product->category ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -53,7 +55,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">No products yet.</td>
+                        <td colspan="6" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">No products yet.</td>
                     </tr>
                 @endforelse
             </tbody>

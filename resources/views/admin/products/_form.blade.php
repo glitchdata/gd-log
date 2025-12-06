@@ -19,6 +19,10 @@
         </label>
     </div>
     <label>
+        <span>Price (USD per seat)</span>
+        <input type="number" name="price" min="0" step="0.01" value="{{ old('price', $product->price ?? '') }}" required>
+    </label>
+    <label>
         <span>Description</span>
         <textarea name="description" rows="4" style="width:100%;border:1px solid rgba(15,23,42,0.15);border-radius:0.9rem;padding:0.85rem 1rem;font-size:1rem;">{{ old('description', $product->description ?? '') }}</textarea>
     </label>

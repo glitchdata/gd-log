@@ -17,6 +17,7 @@ class ProductFactory extends Factory
             'vendor' => $this->faker->company,
             'category' => $this->faker->randomElement(['Analytics', 'Security', 'Data', 'Productivity']),
             'description' => $this->faker->sentence(10),
+            'price' => $this->faker->numberBetween(20, 120),
         ];
     }
 }

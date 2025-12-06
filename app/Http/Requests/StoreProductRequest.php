@@ -19,6 +19,7 @@ class StoreProductRequest extends FormRequest
             'vendor' => ['nullable', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
         ];
     }
 }

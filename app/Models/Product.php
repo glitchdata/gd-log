@@ -15,6 +15,11 @@ class Product extends Model
         'vendor',
         'category',
         'description',
+        'price',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
     ];
 
     public function licenses()
