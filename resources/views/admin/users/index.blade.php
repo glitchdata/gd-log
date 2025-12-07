@@ -29,6 +29,7 @@
                 <tr style="text-align:left;color:var(--muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;">
                     <th style="padding:0 0.75rem;">Name</th>
                     <th style="padding:0 0.75rem;">Email</th>
+                    <th style="padding:0 0.75rem;">Admin Email</th>
                     <th style="padding:0 0.75rem;">Role</th>
                     <th style="padding:0 0.75rem;">Created</th>
                     <th style="padding:0 0.75rem;">Actions</th>
@@ -39,6 +40,7 @@
                     <tr style="background:var(--bg);">
                         <td style="padding:0.9rem 0.75rem;font-weight:600;">{{ $user->name }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $user->email }}</td>
+                        <td style="padding:0.9rem 0.75rem;">{{ $user->admin_email ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $user->is_admin ? 'Admin' : 'Member' }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $user->created_at->format('M j, Y') }}</td>
                         <td style="padding:0.9rem 0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
@@ -52,7 +54,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">
+                        <td colspan="6" style="padding:1rem 0.75rem;text-align:center;color:var(--muted);">
                             No users have been created yet.
                         </td>
                     </tr>

@@ -32,6 +32,7 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'admin_email' => ['nullable', 'string', 'lowercase', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'captcha' => ['required', function ($attribute, $value, $fail) {
                 $expected = session('captcha.answer');
@@ -52,6 +53,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'admin_email' => $validated['admin_email'] ?? null,
             'password' => Hash::make($validated['password']),
         ]);
 

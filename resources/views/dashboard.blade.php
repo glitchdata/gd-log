@@ -48,6 +48,10 @@
             <dd>{{ $user->email }}</dd>
         </div>
         <div>
+            <dt>Admin contact</dt>
+            <dd>{{ $user->admin_email ?? '—' }}</dd>
+        </div>
+        <div>
             <dt>Member since</dt>
             <dd>{{ $user->created_at->format('F j, Y') }}</dd>
         </div>

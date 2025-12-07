@@ -8,6 +8,10 @@
         <span>Email</span>
         <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required>
     </label>
+    <label>
+        <span>Admin contact email (optional)</span>
+        <input type="email" name="admin_email" value="{{ old('admin_email', $user->admin_email ?? '') }}" placeholder="ops@example.com">
+    </label>
     <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
         <label>
             <span>Password {{ isset($user) && $user->exists ? '(leave blank to keep current)' : '' }}</span>

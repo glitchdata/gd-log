@@ -22,6 +22,7 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->route('user')->id ?? null),
             ],
+            'admin_email' => ['nullable', 'email', 'max:255'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_admin' => ['nullable', 'boolean'],
         ];

@@ -34,6 +34,10 @@
                 <input type="email" name="email" value="{{ old('email') }}" required>
             </label>
             <label>
+                <span>Admin contact email (optional)</span>
+                <input type="email" name="admin_email" value="{{ old('admin_email') }}" placeholder="ops@example.com">
+            </label>
+            <label>
                 <span>Password</span>
                 <input type="password" name="password" required>
             </label>
