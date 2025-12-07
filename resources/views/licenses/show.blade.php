@@ -35,7 +35,11 @@
         </div>
         <div>
             <dt>Inspect URI</dt>
-            <dd style="font-family:monospace;">{{ $license->inspect_uri }}</dd>
+            <dd>
+                <a href="{{ $license->inspect_uri }}" target="_blank" rel="noopener" style="font-family:monospace;color:inherit;">
+                    {{ $license->inspect_uri }}
+                </a>
+            </dd>
         </div>
         <div>
             <dt>Public validator</dt>
