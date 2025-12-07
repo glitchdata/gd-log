@@ -36,16 +36,22 @@
         <div>
             <dt>Inspect URI</dt>
             <dd>
-                <a href="{{ $license->inspect_uri }}" target="_blank" rel="noopener" style="font-family:monospace;color:inherit;">
-                    {{ $license->inspect_uri }}
+                <a href="{{ $license->inspect_uri }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.4rem;font-family:monospace;color:inherit;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align:middle;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 010 5.656m-1.414-1.414a2 2 0 010 2.828m-2.828-2.828a6 6 0 018.485 8.485m-1.414-1.414a4 4 0 01-5.656 0m1.414-1.414a2 2 0 01-2.828 0" />
+                    </svg>
+                    Inspect URI
                 </a>
             </dd>
         </div>
         <div>
             <dt>Public validator</dt>
             <dd style="font-family:monospace;">
-                <a href="{{ $license->public_validator_uri }}" target="_blank" rel="noopener" style="color:inherit;">
-                    {{ $license->public_validator_uri }}
+                <a href="{{ $license->public_validator_uri }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.3rem;color:inherit;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align:middle;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3v4a1 1 0 001 1h4m-5 8v4a1 1 0 001 1h4m-5-8V3a1 1 0 00-1-1H5a1 1 0 00-1 1v16a1 1 0 001 1h8a1 1 0 001-1v-4m-5-8h4" />
+                    </svg>
+                    Public validator
                 </a>
             </dd>
         </div>
