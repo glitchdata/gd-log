@@ -97,10 +97,7 @@
                     @endforeach
                 </select>
             </label>
-            <label>
-                <span>Seats needed</span>
-                <input type="number" name="seats_total" id="seats-input" min="1" value="{{ old('seats_total', 1) }}" required>
-            </label>
+            <input type="hidden" name="seats_total" id="seats-input" value="1">
             <label>
                 <span>Primary domain (optional)</span>
                 <input type="text" name="domain" placeholder="acme.com" value="{{ old('domain') }}">
@@ -113,7 +110,7 @@
                 <span id="purchase-total">$0.00</span>
             </div>
             <input type="hidden" name="paypal_order_id" id="paypal-order-id">
-            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Select your seats, then approve the payment when the PayPal window opens.</p>
+            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Each purchase provides a single-seat license tied to your account.</p>
             <div id="paypal-buttons-dashboard"></div>
             <p id="paypal-errors-dashboard" style="display:none;color:var(--error);font-weight:600;"></p>
             @error('payment')
@@ -209,27 +206,19 @@
     };
 
     const updateTotal = () => {
-        if (!select || !seats || !total || !durationText) {
+        if (!select || !total || !durationText) {
             return;
         }
 
         const price = parseFloat(select.selectedOptions[0]?.dataset.price || '0');
         const duration = parseInt(select.selectedOptions[0]?.dataset.duration || '0', 10);
-        const seatCount = parseInt(seats.value, 10) || 0;
-        const amount = price * seatCount;
+        const amount = price;
         total.textContent = amount > 0 ? `$${amount.toFixed(2)}` : '$0.00';
         durationText.textContent = duration > 0 ? duration : '—';
     };
 
     if (select) {
         select.addEventListener('change', () => {
-            clearOrder();
-            updateTotal();
-        });
-    }
-
-    if (seats) {
-        seats.addEventListener('input', () => {
             clearOrder();
             updateTotal();
         });
@@ -283,10 +272,9 @@
                     throw new Error('Select a product before checking out.');
                 }
 
-                const seatsValue = parseInt(seats ? seats.value : '1', 10) || 1;
                 const payload = {
                     product_id: select.value,
-                    seats_total: seatsValue,
+                    seats_total: 1,
                     domain: domainInput ? domainInput.value : null,
                 };
 

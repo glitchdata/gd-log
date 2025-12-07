@@ -50,10 +50,7 @@
         <form method="POST" action="{{ route('licenses.store') }}" style="display:grid;gap:1rem;margin-top:1.25rem;" id="shop-purchase-form">
             @csrf
             <input type="hidden" name="product_id" value="{{ $product->id }}">
-            <label>
-                <span>Seats needed</span>
-                <input type="number" name="seats_total" id="shop-seats-input" min="1" value="{{ old('seats_total', 1) }}" required>
-            </label>
+            <input type="hidden" name="seats_total" id="shop-seats-input" value="1">
             <label>
                 <span>Primary domain (optional)</span>
                 <input type="text" name="domain" placeholder="acme.com" value="{{ old('domain') }}">
@@ -66,7 +63,7 @@
                 <span id="shop-purchase-total">$0.00</span>
             </div>
             <input type="hidden" name="paypal_order_id" id="shop-paypal-order">
-            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Approve the popup to finish.</p>
+            <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Each purchase provides one license seat—approve the popup to finish.</p>
             <div id="paypal-buttons-shop"></div>
             <p id="paypal-errors-shop" style="display:none;color:var(--error);font-weight:600;"></p>
             @error('payment')
@@ -105,12 +102,10 @@
             const pricePerSeat = {{ number_format($product->price, 2, '.', '') }};
 
             const update = () => {
-                if (!seatsInput || !totalEl) {
+                if (!totalEl) {
                     return;
                 }
-                const seats = parseInt(seatsInput.value, 10) || 0;
-                const total = seats * pricePerSeat;
-                totalEl.textContent = total > 0 ? `$${total.toFixed(2)}` : '$0.00';
+                totalEl.textContent = pricePerSeat > 0 ? `$${pricePerSeat.toFixed(2)}` : '$0.00';
                 if (paypalOrderInput) {
                     paypalOrderInput.value = '';
                 }
@@ -119,9 +114,6 @@
                 }
             };
 
-            if (seatsInput) {
-                seatsInput.addEventListener('input', update);
-            }
             update();
 
             if (form) {
@@ -161,7 +153,7 @@
                         }
                         const payload = {
                             product_id: form.querySelector('input[name="product_id"]').value,
-                            seats_total: parseInt(seatsInput.value, 10) || 1,
+                            seats_total: 1,
                             domain: domainInput ? domainInput.value : null,
                         };
                         const response = await fetch('{{ route('paypal.orders.store') }}', {

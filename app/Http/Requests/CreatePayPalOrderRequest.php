@@ -15,7 +15,7 @@ class CreatePayPalOrderRequest extends FormRequest
     {
         return [
             'product_id' => ['required', 'exists:products,id'],
-            'seats_total' => ['required', 'integer', 'min:1', 'max:500'],
+            'seats_total' => ['required', 'integer', 'min:1', 'max:1'],
             'domain' => ['nullable', 'string', 'max:255'],
         ];
     }
