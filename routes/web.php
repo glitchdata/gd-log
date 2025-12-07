@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
 Route::view('/api-lab', 'api.lab')->name('api.lab');
-Route::get('/licenses/validator/{license_code}', PublicLicenseValidatorController::class)
+Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
