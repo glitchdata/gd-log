@@ -70,7 +70,7 @@ class License extends Model
 
     public function getPublicValidatorUriAttribute(): string
     {
-        return route('licenses.validator', ['license' => $this->identifier]);
+        return route('licenses.validator', ['license_code' => $this->identifier]);
     }
 
     private static function generateIdentifier(): string
