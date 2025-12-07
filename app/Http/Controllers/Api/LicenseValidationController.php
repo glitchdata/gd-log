@@ -23,21 +23,19 @@ class LicenseValidationController extends Controller
         }
 
         $seatsRequested = $request->seatsRequested();
-        $hasSeats = $license->seats_available >= $seatsRequested;
+        $fitsSeatRequest = $license->seats_total >= $seatsRequested;
         $isExpired = $license->expires_at && $license->expires_at->isPast();
 
-        $valid = $hasSeats && ! $isExpired;
+        $valid = $fitsSeatRequest && ! $isExpired;
 
         return response()->json([
             'valid' => $valid,
-            'reason' => $valid ? null : $this->deriveReason($hasSeats, $isExpired),
+            'reason' => $valid ? null : $this->deriveReason($fitsSeatRequest, $isExpired),
             'seats_requested' => $seatsRequested,
-            'seats_available' => $license->seats_available,
             'expires_at' => optional($license->expires_at)->toDateString(),
             'license' => [
                 'id' => $license->id,
                 'seats_total' => $license->seats_total,
-                'seats_used' => $license->seats_used,
                 'inspect_uri' => $license->inspect_uri,
                 'public_validator_uri' => $license->public_validator_uri,
             ],
@@ -51,13 +49,13 @@ class LicenseValidationController extends Controller
         ]);
     }
 
-    private function deriveReason(bool $hasSeats, bool $isExpired): string
+    private function deriveReason(bool $fitsSeatRequest, bool $isExpired): string
     {
         if ($isExpired) {
             return 'License expired.';
         }
 
-        if (! $hasSeats) {
+        if (! $fitsSeatRequest) {
             return 'Insufficient seats.';
         }
 

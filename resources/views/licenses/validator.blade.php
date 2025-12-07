@@ -33,7 +33,7 @@
         </div>
         <div>
             <dt>Seats</dt>
-            <dd>{{ $license->seats_total }} total / {{ $license->seats_used }} used</dd>
+            <dd>{{ $license->seats_total }}</dd>
         </div>
         <div>
             <dt>Expires</dt>

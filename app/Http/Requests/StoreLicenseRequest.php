@@ -17,16 +17,8 @@ class StoreLicenseRequest extends FormRequest
             'product_id' => ['required', 'exists:products,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'seats_total' => ['required', 'integer', 'min:1'],
-            'seats_used' => ['nullable', 'integer', 'min:0', 'lte:seats_total'],
             'expires_at' => ['nullable', 'date'],
             'domains' => ['nullable', 'string'],
         ];
-    }
-
-    public function prepareForValidation(): void
-    {
-        $this->merge([
-            'seats_used' => $this->input('seats_used', 0),
-        ]);
     }
 }

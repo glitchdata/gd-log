@@ -68,21 +68,18 @@ class DatabaseSeeder extends Seeder
                 'product_id' => $productMap['LIC-ANL-01']->id,
                 'user_id' => $admin->id,
                 'seats_total' => 25,
-                'seats_used' => 18,
                 'expires_at' => now()->addMonths(6),
             ],
             [
                 'product_id' => $productMap['LIC-SEC-99']->id,
                 'user_id' => null,
                 'seats_total' => 50,
-                'seats_used' => 42,
                 'expires_at' => now()->addYear(),
             ],
             [
                 'product_id' => $productMap['LIC-DLK-12']->id,
                 'user_id' => null,
                 'seats_total' => 10,
-                'seats_used' => 4,
                 'expires_at' => now()->addMonths(3),
             ],
         ];

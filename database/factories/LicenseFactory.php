@@ -17,7 +17,6 @@ class LicenseFactory extends Factory
             'product_id' => Product::factory(),
             'user_id' => User::factory(),
             'seats_total' => $this->faker->numberBetween(5, 200),
-            'seats_used' => $this->faker->numberBetween(0, 150),
             'expires_at' => $this->faker->dateTimeBetween('+3 months', '+2 years'),
         ];
     }

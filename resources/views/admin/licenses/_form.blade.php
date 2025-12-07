@@ -44,10 +44,6 @@
             <input type="number" name="seats_total" min="1" value="{{ old('seats_total', $license->seats_total ?? 1) }}" required>
         </label>
         <label>
-            <span>Seats in use</span>
-            <input type="number" name="seats_used" min="0" value="{{ old('seats_used', $license->seats_used ?? 0) }}">
-        </label>
-        <label>
             <span>Expires on</span>
             <input type="date" name="expires_at" value="{{ old('expires_at', optional($license->expires_at ?? null)->format('Y-m-d')) }}">
         </label>

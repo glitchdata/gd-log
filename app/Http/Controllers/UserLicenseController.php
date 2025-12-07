@@ -79,7 +79,6 @@ class UserLicenseController extends Controller
                 'product_id' => $product->id,
                 'user_id' => $request->user()->id,
                 'seats_total' => $seats,
-                'seats_used' => 0,
                 'expires_at' => now()->addMonths($duration),
             ]);
 

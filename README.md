@@ -1,4 +1,4 @@
-# GD Login (Laravel)
+# gd-license (Laravel)
 
 A Laravel 11 application that delivers an email/password login portal with registration, a session-backed dashboard, and demo data seeded via migrations. It recreates the previous aesthetic while adopting Laravel's authentication stack (guards, middleware, CSRF protection).
 
@@ -93,12 +93,10 @@ Example response:
 	"valid": true,
 	"reason": null,
 	"seats_requested": 3,
-	"seats_available": 7,
 	"expires_at": "2026-04-01",
 	"license": {
 		"id": 1,
-		"seats_total": 25,
-		"seats_used": 18
+		"seats_total": 25
 	},
 	"product": {
 		"id": 7,

@@ -62,14 +62,6 @@
             <dd>{{ $license->seats_total }}</dd>
         </div>
         <div>
-            <dt>Seats in use</dt>
-            <dd>{{ $license->seats_used }}</dd>
-        </div>
-        <div>
-            <dt>Seats available</dt>
-            <dd style="color:{{ $license->seats_available > 0 ? 'var(--success)' : 'var(--error)' }};">{{ $license->seats_available }}</dd>
-        </div>
-        <div>
             <dt>Purchase total</dt>
             <dd>${{ number_format(($license->product->price ?? 0) * $license->seats_total, 2) }}</dd>
         </div>

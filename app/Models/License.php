@@ -16,7 +16,6 @@ class License extends Model
         'product_id',
         'user_id',
         'seats_total',
-        'seats_used',
         'expires_at',
         'identifier',
     ];
@@ -41,11 +40,6 @@ class License extends Model
         static::deleting(function (License $license) {
             $license->domains()->delete();
         });
-    }
-
-    public function getSeatsAvailableAttribute(): int
-    {
-        return max(0, $this->seats_total - $this->seats_used);
     }
 
     public function product()

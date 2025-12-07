@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('product_code');
             $table->unsignedInteger('seats_total');
-            $table->unsignedInteger('seats_used')->default(0);
             $table->date('expires_at')->nullable();
             $table->timestamps();
         });
