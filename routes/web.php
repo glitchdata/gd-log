@@ -1,3 +1,5 @@
+use App\Http\Controllers\LicenseValidatorJsonController;
+Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);
 <?php
 
 use App\Http\Controllers\Admin\LicenseController as AdminLicenseController;
