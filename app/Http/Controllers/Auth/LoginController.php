@@ -43,6 +43,14 @@ class LoginController extends Controller
 
         $user = User::where('email', $credentials['email'])->firstOrFail();
 
+        if (! $this->twoFactorEnabled()) {
+            Auth::login($user, $remember);
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('dashboard'))
+                ->with('status', 'Welcome back!');
+        }
+
         $this->sendTwoFactorCode($user);
 
         $request->session()->put('login.2fa.user_id', $user->id);
@@ -67,6 +75,10 @@ class LoginController extends Controller
 
     public function showTwoFactorForm(Request $request): View|RedirectResponse
     {
+        if (! $this->twoFactorEnabled()) {
+            return redirect()->route('login');
+        }
+
         if (! $request->session()->has('login.2fa.user_id')) {
             return redirect()->route('login');
         }
@@ -76,6 +88,10 @@ class LoginController extends Controller
 
     public function verifyTwoFactor(Request $request): RedirectResponse
     {
+        if (! $this->twoFactorEnabled()) {
+            return redirect()->route('login');
+        }
+
         $request->validate([
             'code' => ['required', 'digits:6'],
         ]);
@@ -116,6 +132,10 @@ class LoginController extends Controller
 
     public function resendTwoFactor(Request $request): RedirectResponse
     {
+        if (! $this->twoFactorEnabled()) {
+            return redirect()->route('login');
+        }
+
         $userId = $request->session()->get('login.2fa.user_id');
 
         if (! $userId) {
@@ -164,5 +184,10 @@ class LoginController extends Controller
         $localMask = substr($local, 0, 1).str_repeat('*', max(strlen($local) - 1, 3));
 
         return $localMask.'@'.$domain;
+    }
+
+    private function twoFactorEnabled(): bool
+    {
+        return (bool) config('auth.two_factor.enabled', true);
     }
 }
