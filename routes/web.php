@@ -1,7 +1,6 @@
-use App\Http\Controllers\LicenseValidatorJsonController;
-Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);
 <?php
 
+use App\Http\Controllers\LicenseValidatorJsonController;
 use App\Http\Controllers\Admin\LicenseController as AdminLicenseController;
 use App\Http\Controllers\Admin\LicenseValidationTestController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -20,6 +19,7 @@ Route::view('/', 'home')->name('home');
 Route::view('/api-lab', 'api.lab')->name('api.lab');
 Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');
+Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 Route::get('/shop/{product:product_code}', [ShopController::class, 'show'])->name('shop.products.show');
