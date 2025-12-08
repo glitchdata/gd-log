@@ -9,31 +9,34 @@
         <h1>{{ $product->name }}</h1>
         <p class="lead">{{ $product->description ?: 'No marketing copy available yet.' }}</p>
     </div>
-    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
-        <a class="link" href="{{ route('shop') }}">&larr; Back to catalog</a>
-        <a class="link" style="font-weight:600;" href="{{ route('login') }}">Purchase in dashboard →</a>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;align-items:center;">
+        <a class="link" href="{{ route('shop') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">← Back to catalog</a>
+        <a class="link" href="{{ route('login') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Purchase in dashboard</a>
     </div>
 </header>
 
-<section class="card" style="display:grid;gap:1.5rem;">
+<section class="card" style="display:grid;gap:1.25rem;">
     <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
-        <span style="font-size:3rem;font-weight:700;">${{ number_format($product->price, 2) }}<span style="font-size:1rem;font-weight:500;color:var(--muted);">/seat</span></span>
+        <div style="display:flex;align-items:flex-end;gap:0.5rem;">
+            <span style="font-size:3rem;font-weight:700;">${{ number_format($product->price, 2) }}</span>
+            <span style="font-size:1rem;font-weight:600;color:var(--muted);">/seat</span>
+        </div>
         <span style="font-weight:600;color:var(--muted);">{{ $product->duration_months }}-month term</span>
         <span style="font-family:monospace;color:var(--muted);">Code: {{ $product->product_code }}</span>
     </div>
-    <dl class="details">
-        <div>
-            <dt>Vendor</dt>
-            <dd>{{ $product->vendor ?? '—' }}</dd>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;">
+        <div style="background:var(--bg);padding:0.9rem 1rem;border-radius:0.85rem;">
+            <p style="margin:0;font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);">Vendor</p>
+            <p style="margin:0.2rem 0 0;font-weight:600;">{{ $product->vendor ?? '—' }}</p>
         </div>
-        <div>
-            <dt>Category</dt>
-            <dd>{{ $product->category ?? '—' }}</dd>
+        <div style="background:var(--bg);padding:0.9rem 1rem;border-radius:0.85rem;">
+            <p style="margin:0;font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);">Category</p>
+            <p style="margin:0.2rem 0 0;font-weight:600;">{{ $product->category ?? '—' }}</p>
         </div>
-    </dl>
-    <div style="display:flex;flex-wrap:wrap;gap:0.75rem;">
-        <a class="link" style="font-weight:600;" href="{{ route('register') }}">Need an account? Sign up →</a>
-        <a class="link" href="{{ route('api.lab') }}">Validate via API Lab</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;">
+        <a class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;" href="{{ route('register') }}">Need an account? Sign up</a>
+        <a class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;" href="{{ route('api.lab') }}">Validate via API Lab</a>
     </div>
 </section>
 
@@ -78,9 +81,9 @@
     <section class="card" style="margin-top:1.5rem;">
         <h2 style="margin-top:0;">Sign in to purchase</h2>
         <p style="color:var(--muted);">Create an account or log in to buy seats for this product from your dashboard.</p>
-        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-            <a class="link" style="font-weight:600;" href="{{ route('login') }}">Log in →</a>
-            <a class="link" href="{{ route('register') }}">Register</a>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;">
+            <a class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;" href="{{ route('login') }}">Log in</a>
+            <a class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;" href="{{ route('register') }}">Register</a>
         </div>
     </section>
 @endauth
