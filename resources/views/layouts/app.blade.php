@@ -151,6 +151,9 @@
                     <a href="{{ route('dashboard') }}">Dashboard</a>
                     <a href="{{ route('shop') }}">Shop</a>
                     <a href="{{ route('api.lab') }}">API Lab</a>
+                    @if (auth()->user()?->is_admin)
+                        <a href="{{ route('admin.event-logs.index') }}">Event Logs</a>
+                    @endif
                 @else
                     <a href="{{ route('shop') }}">Shop</a>
                     <a href="{{ route('api.lab') }}">API Lab</a>
