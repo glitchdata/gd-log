@@ -9,7 +9,7 @@
         <h1>Edit product</h1>
         <p class="lead">Adjust metadata for {{ $product->name }}.</p>
     </div>
-    <a class="link" href="{{ route('admin.products.index') }}">Back to catalog</a>
+    <a class="link" href="{{ route('admin.products.index') }}">Back to shop</a>
 </header>
 
 @if ($errors->any())

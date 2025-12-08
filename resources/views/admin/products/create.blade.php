@@ -9,7 +9,7 @@
         <h1>Add product</h1>
         <p class="lead">Register a new application so licenses can attach to it.</p>
     </div>
-    <a class="link" href="{{ route('admin.products.index') }}">Back to catalog</a>
+    <a class="link" href="{{ route('admin.products.index') }}">Back to shop</a>
 </header>
 
 @if ($errors->any())
