@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\TwoFactorCodeMail;
+use App\Models\EventLog;
 use App\Models\User;
+use App\Services\EventLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +48,14 @@ class LoginController extends Controller
         if (! $this->twoFactorEnabled()) {
             Auth::login($user, $remember);
             $request->session()->regenerate();
+
+            EventLogger::log(EventLog::TYPE_LOGIN, $user->id, [
+                'email' => $user->email,
+                'remember' => $remember,
+                'two_factor' => false,
+                'ip' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 500),
+            ]);
 
             return redirect()->intended(route('dashboard'))
                 ->with('status', 'Welcome back!');
@@ -125,6 +135,13 @@ class LoginController extends Controller
 
         Auth::loginUsingId($userId, $remember);
         $request->session()->regenerate();
+
+        EventLogger::log(EventLog::TYPE_LOGIN, $userId, [
+            'two_factor' => true,
+            'remember' => $remember,
+            'ip' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 500),
+        ]);
 
         return redirect()->intended(route('dashboard'))
             ->with('status', 'Welcome back!');
