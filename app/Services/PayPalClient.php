@@ -165,6 +165,8 @@ class PayPalClient
             }
         }
 
-        return 'PayPal API error ('.$response->status().').';
+        $bodySnippet = substr($response->body(), 0, 300);
+
+        return 'PayPal API error ('.$response->status().') '.($bodySnippet !== '' ? $bodySnippet : '');
     }
 }

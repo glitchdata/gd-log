@@ -33,7 +33,9 @@ class PayPalOrderController extends Controller
 
         try {
             // Keep description ASCII-only and short to satisfy PayPal schema rules.
-            $description = sprintf('%s - %d seat(s)', Str::limit($product->name, 80, ''), $seats);
+            $asciiName = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $product->name) ?: $product->name;
+            $cleanName = preg_replace('/[^A-Za-z0-9 ._-]/', '', $asciiName) ?: 'Product';
+            $description = sprintf('%s - %d seat(s)', Str::limit($cleanName, 80, ''), $seats);
 
             $order = $this->paypal->createOrder(
                 $total,
