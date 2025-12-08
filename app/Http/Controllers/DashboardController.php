@@ -22,6 +22,8 @@ class DashboardController extends Controller
             'paypalCurrency' => config('paypal.currency', 'USD'),
             'stripePublicKey' => config('stripe.public_key'),
             'stripeCurrency' => config('stripe.currency', 'USD'),
+            'paypalEnabled' => (bool) (config('payment.providers.paypal.enabled') && config('paypal.client_id')),
+            'stripeEnabled' => (bool) (config('payment.providers.stripe.enabled') && config('stripe.public_key') && config('stripe.secret')),
         ]);
     }
 }

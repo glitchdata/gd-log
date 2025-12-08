@@ -82,6 +82,7 @@
     @if ($products->isEmpty())
         <p style="margin-top:1.25rem;color:var(--muted);">No products are available for purchase right now. Please check back later.</p>
     @else
+        @if ($paypalEnabled)
         <form method="POST" action="{{ route('licenses.store') }}" style="display:grid;gap:1rem;margin-top:1.5rem;" id="purchase-form">
             @csrf
             <label>
@@ -124,7 +125,9 @@
                 <p style="color:var(--error);font-weight:600;">Set PAYPAL_CLIENT_ID and PAYPAL_SECRET in your environment file to enable checkout.</p>
             @endif
         </form>
+        @endif
 
+        @if ($stripeEnabled)
         <div style="margin-top:1.5rem;padding:1rem;border:1px solid rgba(15,23,42,0.08);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
                 <div>
@@ -170,6 +173,7 @@
                 @endif
             </form>
         </div>
+        @endif
     @endif
 </section>
 
@@ -240,10 +244,10 @@
 @endsection
 
 @push('scripts')
-@if ($paypalClientId)
+@if ($paypalEnabled && $paypalClientId)
     <script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency={{ $paypalCurrency ?? 'USD' }}" data-sdk-integration-source="button-factory"></script>
 @endif
-@if (config('stripe.public_key'))
+@if ($stripeEnabled && config('stripe.public_key'))
     <script src="https://js.stripe.com/v3/"></script>
 @endif
 <script>
@@ -256,7 +260,7 @@
     const domainInput = form ? form.querySelector('input[name="domain"]') : null;
     const orderInput = document.getElementById('paypal-order-id');
     const paypalErrors = document.getElementById('paypal-errors-dashboard');
-    const paypalEnabled = {{ $paypalClientId ? 'true' : 'false' }};
+    const paypalEnabled = {{ $paypalEnabled && $paypalClientId ? 'true' : 'false' }};
 
     const clearOrder = () => {
         if (orderInput) {
@@ -394,7 +398,7 @@
 })();
 </script>
 
-@if (config('stripe.public_key'))
+@if ($stripeEnabled && config('stripe.public_key'))
 <script>
 (function () {
     const stripeKey = '{{ config('stripe.public_key') }}';

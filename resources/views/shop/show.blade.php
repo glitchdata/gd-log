@@ -41,6 +41,7 @@
 </section>
 
 @auth
+    @if ($paypalEnabled)
     <section class="card" style="margin-top:1.5rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
             <div>
@@ -80,7 +81,9 @@
             @endif
         </form>
     </section>
+    @endif
 
+    @if ($stripeEnabled)
     <section class="card" style="margin-top:1.5rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
             <div>
@@ -113,15 +116,16 @@
             @endif
         </form>
     </section>
+    @endif
 @endauth
 
 @endsection
 
 @push('scripts')
-@if ($paypalClientId)
+@if ($paypalEnabled && $paypalClientId)
     <script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency={{ $paypalCurrency ?? 'USD' }}" data-sdk-integration-source="button-factory"></script>
 @endif
-@if ($stripePublicKey)
+@if ($stripeEnabled && $stripePublicKey)
     <script src="https://js.stripe.com/v3/"></script>
 @endif
 <script>
@@ -131,7 +135,7 @@
     const domainInput = form ? form.querySelector('input[name="domain"]') : null;
     const paypalOrderInput = document.getElementById('shop-paypal-order');
     const paypalErrors = document.getElementById('paypal-errors-shop');
-    const paypalEnabled = {{ $paypalClientId ? 'true' : 'false' }};
+    const paypalEnabled = {{ $paypalEnabled && $paypalClientId ? 'true' : 'false' }};
     const price = parseFloat('{{ number_format($product->price, 2, '.', '') }}');
 
     const showError = (message) => {
