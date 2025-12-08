@@ -140,13 +140,28 @@ class PayPalClient
         $json = $response->json();
 
         if (is_array($json)) {
+            $parts = [];
+
             if (! empty($json['message'])) {
-                return (string) $json['message'];
+                $parts[] = (string) $json['message'];
             }
 
-            $details = $json['details'][0]['issue'] ?? null;
-            if ($details) {
-                return (string) $details;
+            if (! empty($json['details']) && is_array($json['details'])) {
+                $first = $json['details'][0];
+                $issue = $first['issue'] ?? null;
+                $description = $first['description'] ?? null;
+
+                if ($issue) {
+                    $parts[] = $description ? sprintf('%s: %s', $issue, $description) : (string) $issue;
+                }
+            }
+
+            if (! empty($json['debug_id'])) {
+                $parts[] = 'debug_id='.$json['debug_id'];
+            }
+
+            if ($parts) {
+                return implode(' | ', $parts);
             }
         }
 

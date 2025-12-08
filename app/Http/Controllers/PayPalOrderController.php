@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Services\PayPalClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class PayPalOrderController extends Controller
@@ -31,10 +32,13 @@ class PayPalOrderController extends Controller
         $domain = $this->normalizeDomain($data['domain'] ?? null);
 
         try {
+            // Keep description ASCII-only and short to satisfy PayPal schema rules.
+            $description = sprintf('%s - %d seat(s)', Str::limit($product->name, 80, ''), $seats);
+
             $order = $this->paypal->createOrder(
                 $total,
                 config('paypal.currency', 'USD'),
-                sprintf('%s · %d seat(s)', $product->name, $seats)
+                $description
             );
         } catch (RuntimeException $e) {
             return response()->json([
