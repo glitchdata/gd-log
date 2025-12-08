@@ -11,8 +11,8 @@
     </div>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
         <a class="link" href="{{ route('dashboard') }}">Dashboard</a>
-        <a class="link" href="{{ route('admin.licenses.index') }}">Licenses</a>
         <a class="link" href="{{ route('admin.users.index') }}">Users</a>
+        <a class="link" href="{{ route('admin.licenses.index') }}">Licenses</a>
         <a href="{{ route('admin.products.create') }}" class="link" style="font-weight:600;">+ New product</a>
     </div>
 </header>
