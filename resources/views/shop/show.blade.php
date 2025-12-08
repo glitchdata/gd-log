@@ -34,6 +34,10 @@
             <p style="margin:0.2rem 0 0;font-weight:600;">{{ $product->category ?? '—' }}</p>
         </div>
     </div>
+    <div style="background:var(--bg);padding:1rem 1.1rem;border-radius:0.85rem;">
+        <p style="margin:0;font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);">Product description</p>
+        <p style="margin:0.35rem 0 0;line-height:1.6;">{!! $product->description ? nl2br(e($product->description)) : 'No marketing copy available yet.' !!}</p>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;">
         <a class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;" href="{{ route('register') }}">Need an account? Sign up</a>
         <a class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;" href="{{ route('api.lab') }}">Validate via API Lab</a>

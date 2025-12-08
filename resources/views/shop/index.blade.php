@@ -27,7 +27,7 @@
                     <h3 style="margin:0;"><a href="{{ route('shop.products.show', $product) }}" style="color:inherit;text-decoration:none;">{{ $product->name }}</a></h3>
                     <p style="margin:0;color:var(--muted);font-family:monospace;">{{ $product->product_code }}</p>
                 </div>
-                <p style="margin:0;">{{ $product->description ?: 'No marketing copy provided yet.' }}</p>
+                <p style="margin:0;">{{ $product->description ? \Illuminate\Support\Str::limit($product->description, 140) : 'No marketing copy provided yet.' }}</p>
                 <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
                     <span style="font-size:2rem;font-weight:700;">${{ number_format($product->price, 2) }}<span style="font-size:1rem;font-weight:500;color:var(--muted);">/seat</span></span>
                     <span style="color:var(--muted);">{{ $product->duration_months }}-month term</span>
