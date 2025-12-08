@@ -6,7 +6,6 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class PayPalClient
@@ -28,24 +27,18 @@ class PayPalClient
 
         $payload = [
             'intent' => $this->intent(),
-            'purchase_units' => [
-                'amount' => {
+            'purchase_units' => [[
+                'amount' => [
                     'currency_code' => strtoupper($currency),
                     'value' => number_format($amount, 2, '.', ''),
-                },
+                ],
                 'description' => $description,
-            ],
+            ]],
         ];
 
         $response = $this->authorizedRequest()->post('/v2/checkout/orders', $payload);
 
         if (! $response->successful()) {
-            Log::warning('PayPal createOrder failed', [
-                'payload' => $payload,
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'json' => $response->json(),
-            ]);
             throw new RuntimeException($this->errorFromResponse($response));
         }
 
@@ -60,12 +53,6 @@ class PayPalClient
         $response = $this->authorizedRequest()->post("/v2/checkout/orders/{$orderId}/capture");
 
         if (! $response->successful()) {
-            Log::warning('PayPal captureOrder failed', [
-                'order_id' => $orderId,
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'json' => $response->json(),
-            ]);
             throw new RuntimeException($this->errorFromResponse($response));
         }
 
@@ -153,33 +140,16 @@ class PayPalClient
         $json = $response->json();
 
         if (is_array($json)) {
-            $parts = [];
-
             if (! empty($json['message'])) {
-                $parts[] = (string) $json['message'];
+                return (string) $json['message'];
             }
 
-            if (! empty($json['details']) && is_array($json['details'])) {
-                $first = $json['details'][0];
-                $issue = $first['issue'] ?? null;
-                $description = $first['description'] ?? null;
-
-                if ($issue) {
-                    $parts[] = $description ? sprintf('%s: %s', $issue, $description) : (string) $issue;
-                }
-            }
-
-            if (! empty($json['debug_id'])) {
-                $parts[] = 'debug_id='.$json['debug_id'];
-            }
-
-            if ($parts) {
-                return implode(' | ', $parts);
+            $details = $json['details'][0]['issue'] ?? null;
+            if ($details) {
+                return (string) $details;
             }
         }
 
-        $bodySnippet = substr($response->body(), 0, 300);
-
-        return 'PayPal API error ('.$response->status().') '.($bodySnippet !== '' ? $bodySnippet : '');
+        return 'PayPal API error ('.$response->status().').';
     }
 }
