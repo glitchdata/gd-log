@@ -9,11 +9,11 @@
         <h1>License management</h1>
         <p class="lead">Review, edit, and retire license allocations across the organization.</p>
     </div>
-    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-        <a class="link" href="{{ route('dashboard') }}">Dashboard</a>
-        <a class="link" href="{{ route('admin.users.index') }}">Users</a>
-        <a class="link" href="{{ route('admin.products.index') }}">Products</a>
-        <a href="{{ route('admin.licenses.create') }}" class="link" style="font-weight:600;">+ New license</a>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.5rem;">
+        <a class="link" href="{{ route('dashboard') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);">Dashboard</a>
+        <a class="link" href="{{ route('admin.users.index') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);">Users</a>
+        <a class="link" href="{{ route('admin.products.index') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);">Products</a>
+        <a href="{{ route('admin.licenses.create') }}" class="link" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">+ New license</a>
     </div>
 </header>
 
