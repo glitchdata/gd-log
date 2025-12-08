@@ -84,6 +84,21 @@
             margin-left: auto;
             flex-wrap: wrap;
         }
+            .site-nav .nav-links a {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.55rem 0.9rem;
+                border: 1px solid rgba(15, 23, 42, 0.12);
+                border-radius: 0.9rem;
+                background: #fff;
+                box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+                transition: transform 120ms ease, box-shadow 120ms ease;
+            }
+            .site-nav .nav-links a:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+            }
         form { display: flex; flex-direction: column; gap: 1rem; }
         label span { display: block; margin-bottom: 0.35rem; font-size: 0.9rem; }
         input {
