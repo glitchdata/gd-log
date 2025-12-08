@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\License;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LicenseValidatorJsonController extends Controller
 {
@@ -16,6 +17,13 @@ class LicenseValidatorJsonController extends Controller
         $license = License::with(['product', 'domains'])->where('identifier', $key)->first();
 
         if (! $license) {
+            Log::info('license.validate.not_found', [
+                'key' => $key,
+                'domain' => $domain,
+                'seats_requested' => $seatsRequested,
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'valid' => false,
                 'reason' => 'License not found.',
@@ -40,6 +48,17 @@ class LicenseValidatorJsonController extends Controller
         }
 
         $valid = empty($errors);
+
+        Log::info('license.validate.result', [
+            'key' => $key,
+            'valid' => $valid,
+            'errors' => $errors,
+            'domain' => $domain,
+            'seats_requested' => $seatsRequested,
+            'license_id' => $license->id,
+            'product_id' => $license->product?->id,
+            'ip' => $request->ip(),
+        ]);
 
         return response()->json([
             'valid' => $valid,
