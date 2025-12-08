@@ -67,12 +67,12 @@
             </div>
             <input type="hidden" name="paypal_order_id" id="shop-paypal-order">
             <p style="margin:0;color:var(--muted);font-size:0.95rem;">Checkout is powered by PayPal. Each purchase provides one license seat—approve the popup to finish.</p>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;align-items:start;">
-                <div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;align-items:start;">
+                <div style="padding:0.5rem;border:1px solid rgba(15,23,42,0.08);border-radius:0.85rem;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,0.06);">
                     <div id="paypal-buttons-shop"></div>
                     <p style="margin:0.35rem 0 0;color:var(--muted);font-size:0.9rem;">Pay with PayPal</p>
                 </div>
-                <div>
+                <div style="padding:0.5rem;border:1px solid rgba(15,23,42,0.08);border-radius:0.85rem;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,0.06);">
                     <div id="paypal-card-shop"></div>
                     <p style="margin:0.35rem 0 0;color:var(--muted);font-size:0.9rem;">Pay with credit/debit card</p>
                 </div>
