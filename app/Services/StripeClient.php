@@ -37,9 +37,12 @@ class StripeClient
             ]);
         } catch (\Throwable $e) {
             Log::warning('Stripe createPaymentIntent failed', [
+                'amount_cents' => $amountCents,
+                'currency' => $currency,
+                'metadata' => $metadata,
                 'message' => $e->getMessage(),
             ]);
-            throw new RuntimeException('Unable to create a Stripe payment.');
+            throw new RuntimeException('Unable to create a Stripe payment: '.$e->getMessage());
         }
     }
 
@@ -52,7 +55,7 @@ class StripeClient
                 'id' => $id,
                 'message' => $e->getMessage(),
             ]);
-            throw new RuntimeException('Unable to verify Stripe payment.');
+            throw new RuntimeException('Unable to verify Stripe payment: '.$e->getMessage());
         }
     }
 }
