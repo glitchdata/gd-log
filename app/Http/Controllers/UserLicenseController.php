@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PurchaseLicenseRequest;
 use App\Models\License;
 use App\Models\Product;
+use App\Models\EventLog;
+use App\Services\EventLogger;
 use App\Services\PayPalClient;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -32,6 +34,7 @@ class UserLicenseController extends Controller
         $data = $request->validated();
         $orderId = $this->sanitizeOrderId($data['paypal_order_id'] ?? '');
         if ($orderId === null) {
+            $this->logPurchase($request->user()->id, $data['product_id'] ?? null, 'paypal', 'failed', 'Invalid PayPal order reference');
             return back()
                 ->withErrors(['payment' => 'Invalid PayPal order reference. Please restart checkout.'])
                 ->withInput($request->except('paypal_order_id'));
@@ -43,12 +46,14 @@ class UserLicenseController extends Controller
         $cachedOrder = Cache::get($cacheKey);
 
         if (! $cachedOrder || ($cachedOrder['user_id'] ?? null) !== $request->user()->id) {
+            $this->logPurchase($request->user()->id, $product->id, 'paypal', 'failed', 'PayPal session expired');
             return back()
                 ->withErrors(['payment' => 'PayPal session expired. Please start checkout again.'])
                 ->withInput($request->except('paypal_order_id'));
         }
 
         if ((int) $cachedOrder['product_id'] !== $product->id || (int) $cachedOrder['seats_total'] !== $seats) {
+            $this->logPurchase($request->user()->id, $product->id, 'paypal', 'failed', 'Purchase details changed');
             return back()
                 ->withErrors(['payment' => 'Purchase details changed. Please recreate the PayPal order.'])
                 ->withInput($request->except('paypal_order_id'));
@@ -59,6 +64,7 @@ class UserLicenseController extends Controller
         try {
             $capture = $this->paypal->captureOrder($orderId);
         } catch (Exception $e) {
+            $this->logPurchase($request->user()->id, $product->id, 'paypal', 'failed', $e->getMessage());
             return back()
                 ->withErrors(['payment' => $e->getMessage()])
                 ->withInput($request->except('paypal_order_id'));
@@ -67,12 +73,14 @@ class UserLicenseController extends Controller
         $captureSummary = $this->captureSummary($capture);
 
         if ($captureSummary['status'] !== 'COMPLETED') {
+            $this->logPurchase($request->user()->id, $product->id, 'paypal', 'failed', 'PayPal did not complete the transaction.');
             return back()
                 ->withErrors(['payment' => 'PayPal did not complete the transaction.'])
                 ->withInput($request->except('paypal_order_id'));
         }
 
         if (abs($captureSummary['amount'] - $total) > 0.01) {
+            $this->logPurchase($request->user()->id, $product->id, 'paypal', 'failed', 'Captured amount mismatch');
             return back()
                 ->withErrors(['payment' => 'Captured amount does not match the expected total.'])
                 ->withInput($request->except('paypal_order_id'));
@@ -101,6 +109,12 @@ class UserLicenseController extends Controller
 
         $transactionId = $captureSummary['transaction_id'] ?? 'N/A';
 
+        $this->logPurchase($request->user()->id, $product->id, 'paypal', 'succeeded', 'License purchased', [
+            'transaction_id' => $transactionId,
+            'amount' => $total,
+            'currency' => $captureSummary['currency'] ?? null,
+        ]);
+
         return redirect()
             ->route('licenses.show', $license)
             ->with('status', 'License purchased successfully. PayPal capture '.$transactionId.' · Total $'.number_format($total, 2));
@@ -121,6 +135,16 @@ class UserLicenseController extends Controller
             'currency' => $captureNode['amount']['currency_code'] ?? null,
             'transaction_id' => $captureNode['id'] ?? null,
         ];
+    }
+
+    private function logPurchase(?int $userId, ?int $productId, string $provider, string $status, string $message, array $extra = []): void
+    {
+        EventLogger::log(EventLog::TYPE_PURCHASE, $userId, array_merge([
+            'provider' => $provider,
+            'status' => $status,
+            'message' => $message,
+            'product_id' => $productId,
+        ], $extra));
     }
 
     private function sanitizeOrderId(string $orderId): ?string

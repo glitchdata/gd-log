@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\License;
 use App\Models\Product;
+use App\Models\EventLog;
 use App\Services\StripeClient;
+use App\Services\EventLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use RuntimeException;
 
 class StripePaymentController extends Controller
 {
@@ -57,7 +58,14 @@ class StripePaymentController extends Controller
 
         $product = Product::findOrFail($data['product_id']);
         $amountCents = (int) round(((float) $product->price) * 100);
-        $intent = $this->stripe->retrievePaymentIntent($data['payment_intent_id']);
+        try {
+            $intent = $this->stripe->retrievePaymentIntent($data['payment_intent_id']);
+        } catch (\Throwable $e) {
+            $this->logPurchase(Auth::id(), $product->id, 'stripe', 'failed', $e->getMessage());
+            return back()
+                ->withErrors(['payment' => $e->getMessage()])
+                ->withInput($request->except('payment_intent_id'));
+        }
 
         $expectedCurrency = strtolower(config('stripe.currency', 'USD'));
         $status = $intent->status ?? null;
@@ -67,18 +75,21 @@ class StripePaymentController extends Controller
         $metadataProduct = $intent->metadata->product_id ?? null;
 
         if ($status !== 'succeeded') {
+            $this->logPurchase(Auth::id(), $product->id, 'stripe', 'failed', 'Stripe payment not completed.');
             return back()
                 ->withErrors(['payment' => 'Stripe payment not completed.'])
                 ->withInput($request->except('payment_intent_id'));
         }
 
         if ($intentAmount !== $amountCents || $intentCurrency !== $expectedCurrency) {
+            $this->logPurchase(Auth::id(), $product->id, 'stripe', 'failed', 'Stripe payment amount mismatch.');
             return back()
                 ->withErrors(['payment' => 'Stripe payment amount mismatch.'])
                 ->withInput($request->except('payment_intent_id'));
         }
 
         if ((string) Auth::id() !== (string) $metadataUser || (string) $product->id !== (string) $metadataProduct) {
+            $this->logPurchase(Auth::id(), $product->id, 'stripe', 'failed', 'Stripe payment does not match this order.');
             return back()
                 ->withErrors(['payment' => 'Stripe payment does not match this order.'])
                 ->withInput($request->except('payment_intent_id'));
@@ -101,8 +112,24 @@ class StripePaymentController extends Controller
             }
         }
 
+        $this->logPurchase(Auth::id(), $product->id, 'stripe', 'succeeded', 'License purchased', [
+            'transaction_id' => $intent->id,
+            'amount' => $amountCents / 100,
+            'currency' => $intentCurrency,
+        ]);
+
         return redirect()
             ->route('licenses.show', $license)
             ->with('status', 'License purchased successfully. Stripe payment '.$intent->id.' · Total $'.number_format($amountCents / 100, 2));
+    }
+
+    private function logPurchase(?int $userId, ?int $productId, string $provider, string $status, string $message, array $extra = []): void
+    {
+        EventLogger::log(EventLog::TYPE_PURCHASE, $userId, array_merge([
+            'provider' => $provider,
+            'status' => $status,
+            'message' => $message,
+            'product_id' => $productId,
+        ], $extra));
     }
 }
