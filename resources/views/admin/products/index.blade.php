@@ -34,6 +34,7 @@
                     <th style="padding:0 0.75rem;">Duration</th>
                     <th style="padding:0 0.75rem;">Vendor</th>
                     <th style="padding:0 0.75rem;">Category</th>
+                    <th style="padding:0 0.75rem;">Description</th>
                     <th style="padding:0 0.75rem;">Actions</th>
                 </tr>
             </thead>
@@ -46,6 +47,7 @@
                         <td style="padding:0.9rem 0.75rem;">{{ $product->duration_months }} mo</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $product->vendor ?? '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;">{{ $product->category ?? '—' }}</td>
+                        <td style="padding:0.9rem 0.75rem;max-width:320px;">{{ $product->description ? \Illuminate\Support\Str::limit($product->description, 120) : '—' }}</td>
                         <td style="padding:0.9rem 0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
                             <a class="link" href="{{ route('admin.products.edit', $product) }}">Edit</a>
                             <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('Delete this product?');">
