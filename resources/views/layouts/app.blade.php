@@ -252,9 +252,6 @@
                     <a href="{{ route('profile.show') }}" class="{{ request()->routeIs('profile.show') ? 'nav-active' : '' }}">Profile</a>
                     <a href="{{ route('shop') }}" class="{{ request()->routeIs('shop') || request()->routeIs('shop.products.show') ? 'nav-active' : '' }}">Shop</a>
                     <a href="{{ route('api.lab') }}" class="{{ request()->routeIs('api.lab') ? 'nav-active' : '' }}">API Lab</a>
-                    @if (auth()->user()?->is_admin)
-                        <a href="{{ route('admin.event-logs.index') }}" class="{{ request()->routeIs('admin.event-logs.index') ? 'nav-active' : '' }}">Event Logs</a>
-                    @endif
                 @else
                     <a href="{{ route('shop') }}" class="{{ request()->routeIs('shop') || request()->routeIs('shop.products.show') ? 'nav-active' : '' }}">Shop</a>
                     <a href="{{ route('api.lab') }}" class="{{ request()->routeIs('api.lab') ? 'nav-active' : '' }}">API Lab</a>
