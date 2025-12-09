@@ -37,10 +37,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login/two-factor/resend', [LoginController::class, 'resendTwoFactor'])->name('login.two-factor.resend');
 
     Route::get('/auth/{provider}/redirect', [SocialLoginController::class, 'redirect'])
-        ->whereIn('provider', ['google', 'meta'])
+        ->whereIn('provider', array_keys(config('social.providers', [])))
         ->name('oauth.redirect');
     Route::get('/auth/{provider}/callback', [SocialLoginController::class, 'callback'])
-        ->whereIn('provider', ['google', 'meta'])
+        ->whereIn('provider', array_keys(config('social.providers', [])))
         ->name('oauth.callback');
 
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
