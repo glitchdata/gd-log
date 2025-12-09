@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\EventLogController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailTestController;
@@ -34,6 +35,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/login/two-factor', [LoginController::class, 'showTwoFactorForm'])->name('login.two-factor.show');
     Route::post('/login/two-factor', [LoginController::class, 'verifyTwoFactor'])->name('login.two-factor.verify');
     Route::post('/login/two-factor/resend', [LoginController::class, 'resendTwoFactor'])->name('login.two-factor.resend');
+
+    Route::get('/auth/google/redirect', [SocialLoginController::class, 'redirect'])->name('oauth.google.redirect');
+    Route::get('/auth/google/callback', [SocialLoginController::class, 'callback'])->name('oauth.google.callback');
 
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
