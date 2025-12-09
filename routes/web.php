@@ -97,7 +97,9 @@ Route::prefix('admin')
         Route::resource('licenses', AdminLicenseController::class)->except(['show']);
         Route::resource('products', AdminProductController::class)->except(['show']);
         Route::resource('users', AdminUserController::class)->except(['show']);
-        Route::resource('servers', AdminServerController::class)->except(['show']);
+        if (config('admin.servers_enabled')) {
+            Route::resource('servers', AdminServerController::class)->except(['show']);
+        }
         Route::get('tools/license-validation', LicenseValidationTestController::class)->name('tools.license-validation');
         Route::get('logs', [AdminLogController::class, 'index'])->name('logs.index');
         Route::get('event-logs', [EventLogController::class, 'index'])->name('event-logs.index');
