@@ -57,7 +57,7 @@ class LoginController extends Controller
                 'user_agent' => substr((string) $request->userAgent(), 0, 500),
             ]);
 
-            return redirect()->intended(route('dashboard'))
+            return redirect()->intended('/dashboard')
                 ->with('status', 'Welcome back!');
         }
 
@@ -143,7 +143,7 @@ class LoginController extends Controller
             'user_agent' => substr((string) $request->userAgent(), 0, 500),
         ]);
 
-        return redirect()->intended(route('dashboard'))
+        return redirect()->intended('/dashboard')
             ->with('status', 'Welcome back!');
     }
 
