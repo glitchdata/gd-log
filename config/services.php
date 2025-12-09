@@ -47,4 +47,8 @@ return [
         'redirect' => env('META_REDIRECT_URI'),
     ],
 
+    'log_receiver' => [
+        'token' => env('LOG_RECEIVER_TOKEN'),
+    ],
+
 ];
