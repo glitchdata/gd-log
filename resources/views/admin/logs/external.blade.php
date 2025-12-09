@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Admin · Event Logs')
+@section('title', 'Admin · External Logs')
 
 @section('content')
 <header class="hero">
     <div>
         <p class="eyebrow">Admin</p>
-        <h1>Event logs</h1>
-        <p class="lead">Recent login, purchase, and change events.</p>
+        <h1>External logs</h1>
+        <p class="lead">Latest ingested external logs.</p>
     </div>
     <div class="admin-nav" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
         <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
@@ -22,31 +22,40 @@
 </header>
 
 @if ($logs->isEmpty())
-    <div class="banner">No event logs yet.</div>
+    <div class="banner">No external logs yet.</div>
 @else
     <div class="card" style="overflow:auto;">
-        <table class="table" style="width:100%;border-collapse:collapse;">
+        <table class="table">
             <thead>
                 <tr>
-                    <th style="text-align:left;padding:0.5rem;">When</th>
-                    <th style="text-align:left;padding:0.5rem;">Type</th>
-                    <th style="text-align:left;padding:0.5rem;">User</th>
-                    <th style="text-align:left;padding:0.5rem;">Context</th>
+                    <th>Created</th>
+                    <th>Occurred</th>
+                    <th>Type</th>
+                    <th>User</th>
+                    <th>Source</th>
+                    <th>IP</th>
+                    <th>Context</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($logs as $log)
                     <tr>
-                        <td style="padding:0.5rem;white-space:nowrap;">{{ $log->created_at->toDateTimeString() }}</td>
-                        <td style="padding:0.5rem;">{{ $log->type }}</td>
-                        <td style="padding:0.5rem;">{{ $log->user_id ?? '—' }}</td>
-                        <td style="padding:0.5rem;font-family:monospace;white-space:pre-wrap;word-break:break-word;">{{ json_encode($log->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</td>
+                        <td>{{ optional($log->created_at)->toDateTimeString() }}</td>
+                        <td>{{ optional($log->occurred_at)->toDateTimeString() ?? '—' }}</td>
+                        <td>{{ $log->type }}</td>
+                        <td>{{ $log->user_id ?? '—' }}</td>
+                        <td>{{ $log->source ?? '—' }}</td>
+                        <td>{{ $log->ip ?? '—' }}</td>
+                        <td>
+                            <pre style="white-space:pre-wrap;word-break:break-word;margin:0;">{{ json_encode($log->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
-    <div style="margin-top:1rem;">
+
+    <div class="mt-4">
         {{ $logs->links() }}
     </div>
 @endif

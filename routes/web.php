@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\LicenseValidationTestController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\EventLogController;
+use App\Http\Controllers\Admin\ExternalLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\SocialLoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -98,4 +99,5 @@ Route::prefix('admin')
         Route::get('tools/license-validation', LicenseValidationTestController::class)->name('tools.license-validation');
         Route::get('logs', [AdminLogController::class, 'index'])->name('logs.index');
         Route::get('event-logs', [EventLogController::class, 'index'])->name('event-logs.index');
+        Route::get('external-logs', [ExternalLogController::class, 'index'])->name('external-logs.index');
     });
