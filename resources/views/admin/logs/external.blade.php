@@ -47,7 +47,10 @@
                         <td>{{ $log->source ?? '—' }}</td>
                         <td>{{ $log->ip ?? '—' }}</td>
                         <td>
-                            <pre style="white-space:pre-wrap;word-break:break-word;margin:0;">{{ json_encode($log->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                            <details>
+                                <summary style="cursor:pointer;user-select:none;">Drill down</summary>
+                                <pre style="white-space:pre-wrap;word-break:break-word;margin:0;">{{ json_encode($log->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                            </details>
                         </td>
                     </tr>
                 @endforeach
