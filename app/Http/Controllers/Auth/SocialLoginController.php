@@ -84,6 +84,10 @@ class SocialLoginController extends Controller
             abort(404);
         }
 
+        if (! $this->providerEnabled($provider)) {
+            abort(404);
+        }
+
         $scopes = match ($provider) {
             'google' => ['openid', 'profile', 'email'],
             default => ['public_profile', 'email'],
@@ -92,5 +96,12 @@ class SocialLoginController extends Controller
         $driverName = $provider === 'meta' ? 'facebook' : $provider;
 
         return Socialite::driver($driverName)->scopes($scopes);
+    }
+
+    private function providerEnabled(string $provider): bool
+    {
+        $configKey = 'social.providers.'.$provider.'.enabled';
+
+        return (bool) config($configKey, false);
     }
 }
