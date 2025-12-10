@@ -15,7 +15,9 @@
         <a class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">Products</a>
         <a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Users</a>
         <a class="{{ request()->routeIs('admin.event-logs.index') ? 'active' : '' }}" href="{{ route('admin.event-logs.index') }}">Event Logs</a>
-        <a class="{{ request()->routeIs('admin.external-logs.index') ? 'active' : '' }}" href="{{ route('admin.external-logs.index') }}">External Logs</a>
+        @if (config('admin.external_logs_enabled'))
+            <a class="{{ request()->routeIs('admin.external-logs.index') ? 'active' : '' }}" href="{{ route('admin.external-logs.index') }}">External Logs</a>
+        @endif
         @if (config('admin.servers_enabled'))
             <a class="{{ request()->routeIs('admin.servers.*') ? 'active' : '' }}" href="{{ route('admin.servers.index') }}">Servers</a>
         @endif

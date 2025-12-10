@@ -16,7 +16,9 @@
         <a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">Users</a>
         <a class="{{ request()->routeIs('admin.logs.index') ? 'active' : '' }}" href="{{ route('admin.logs.index') }}">App Log</a>
         <a class="{{ request()->routeIs('admin.event-logs.index') ? 'active' : '' }}" href="{{ route('admin.event-logs.index') }}">Event Logs</a>
-        <a class="{{ request()->routeIs('admin.external-logs.index') ? 'active' : '' }}" href="{{ route('admin.external-logs.index') }}">External Logs</a>
+           @if (config('admin.external_logs_enabled'))
+               <a class="{{ request()->routeIs('admin.external-logs.index') ? 'active' : '' }}" href="{{ route('admin.external-logs.index') }}">External Logs</a>
+           @endif
         <a class="active" href="{{ route('admin.servers.index') }}">Servers</a>
         <a class="{{ request()->routeIs('admin.tools.license-validation') ? 'active' : '' }}" href="{{ route('admin.tools.license-validation') }}">License Validation</a>
         <a class="{{ request()->routeIs('admin.servers.create') ? 'active' : '' }}" href="{{ route('admin.servers.create') }}">+ Add server</a>

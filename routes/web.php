@@ -103,5 +103,7 @@ Route::prefix('admin')
         Route::get('tools/license-validation', LicenseValidationTestController::class)->name('tools.license-validation');
         Route::get('logs', [AdminLogController::class, 'index'])->name('logs.index');
         Route::get('event-logs', [EventLogController::class, 'index'])->name('event-logs.index');
-        Route::get('external-logs', [ExternalLogController::class, 'index'])->name('external-logs.index');
+        if (config('admin.external_logs_enabled')) {
+            Route::get('external-logs', [ExternalLogController::class, 'index'])->name('external-logs.index');
+        }
     });

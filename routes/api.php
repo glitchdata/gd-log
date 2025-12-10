@@ -11,5 +11,7 @@ Route::post('/licenses/validate', LicenseValidationController::class)
 Route::get('/license/validate/{key}', LicenseValidatorJsonController::class)
 	->name('api.license.validate');
 
-Route::post('/logs', EventLogReceiverController::class)
-	->name('api.logs.store');
+if (config('admin.external_logs_enabled')) {
+	Route::post('/logs', EventLogReceiverController::class)
+		->name('api.logs.store');
+}
