@@ -41,15 +41,20 @@
                 <input type="checkbox" name="remember" value="1" style="width:auto;"> Remember me
             </label>
             <button type="submit">Sign in</button>
-            @if (config('social.providers.google.enabled'))
-            <button type="button" onclick="window.location='{{ route('oauth.redirect', ['provider' => 'google']) }}'" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#fff;color:#0f172a;border:1px solid rgba(15,23,42,0.15);box-shadow:0 8px 18px rgba(15,23,42,0.08);">
-                <span style="font-weight:700;">Continue with Google</span>
-            </button>
-            @endif
-            @if (config('social.providers.meta.enabled'))
-            <button type="button" onclick="window.location='{{ route('oauth.redirect', ['provider' => 'meta']) }}'" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#fff;color:#0f172a;border:1px solid rgba(15,23,42,0.15);box-shadow:0 8px 18px rgba(15,23,42,0.08);">
-                <span style="font-weight:700;">Continue with Meta</span>
-            </button>
+            @if (config('social.providers.google.enabled') || config('social.providers.meta.enabled'))
+            <div style="margin:0.75rem 0;padding-top:0.75rem;border-top:1px solid rgba(15,23,42,0.1);" class="stack">
+                <p class="eyebrow" style="margin:0 0 0.35rem;">Single sign-on</p>
+                @if (config('social.providers.google.enabled'))
+                <button type="button" onclick="window.location='{{ route('oauth.redirect', ['provider' => 'google']) }}'" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#fff;color:#0f172a;border:1px solid rgba(15,23,42,0.15);box-shadow:0 8px 18px rgba(15,23,42,0.08);">
+                    <span style="font-weight:700;">Continue with Google</span>
+                </button>
+                @endif
+                @if (config('social.providers.meta.enabled'))
+                <button type="button" onclick="window.location='{{ route('oauth.redirect', ['provider' => 'meta']) }}'" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#fff;color:#0f172a;border:1px solid rgba(15,23,42,0.15);box-shadow:0 8px 18px rgba(15,23,42,0.08);">
+                    <span style="font-weight:700;">Continue with Meta</span>
+                </button>
+                @endif
+            </div>
             @endif
             <p class="hint">Need an account? <a class="link" href="{{ route('register') }}">Create one</a>.</p>
         </form>
