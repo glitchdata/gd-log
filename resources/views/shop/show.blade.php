@@ -132,74 +132,58 @@
 @endsection
 
 @push('scripts')
-@if ($paypalEnabled && $paypalClientId)
-    <script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency={{ $paypalCurrency ?? 'USD' }}" data-sdk-integration-source="button-factory"></script>
-@endif
-@if ($stripeEnabled && $stripePublicKey)
-    <script src="https://js.stripe.com/v3/"></script>
-@endif
-<script>
-(function () {
-    const form = document.getElementById('shop-purchase-form');
-    const total = document.getElementById('shop-purchase-total');
-    const domainInput = form ? form.querySelector('input[name="domain"]') : null;
-    const paypalOrderInput = document.getElementById('shop-paypal-order');
-    const paypalErrors = document.getElementById('paypal-errors-shop');
-    const paypalEnabled = {{ $paypalEnabled && $paypalClientId ? 'true' : 'false' }};
-    const price = parseFloat('{{ number_format($product->price, 2, '.', '') }}');
+@if(config('shop.enabled'))
+    @if ($paypalEnabled && $paypalClientId)
+        <script src="https://www.paypal.com/sdk/js?client-id={{ $paypalClientId }}&currency={{ $paypalCurrency ?? 'USD' }}" data-sdk-integration-source="button-factory"></script>
+        <script>
+        (function () {
+            const form = document.getElementById('shop-purchase-form');
+            const total = document.getElementById('shop-purchase-total');
+            const seatsInput = document.getElementById('shop-seats-input');
+            const domainInput = form ? form.querySelector('input[name="domain"]') : null;
+            const paypalOrderInput = document.getElementById('shop-paypal-order');
+            const paypalErrors = document.getElementById('paypal-errors-shop');
+            const price = parseFloat('{{ number_format($product->price, 2, '.', '') }}');
 
-    const showError = (message) => {
-        if (paypalErrors) {
-            paypalErrors.textContent = message;
-            paypalErrors.style.display = 'block';
-        }
-    };
-
-    const clearError = () => {
-        if (paypalErrors) {
-            paypalErrors.textContent = '';
-            paypalErrors.style.display = 'none';
-        }
-    };
-
-    const clearOrder = () => {
-        if (paypalOrderInput) {
-            paypalOrderInput.value = '';
-        }
-        if (form) {
-            form.dataset.paypalReady = 'false';
-        }
-    };
-
-    const updateTotal = () => {
-        if (total && Number.isFinite(price)) {
-            total.textContent = `$${price.toFixed(2)}`;
-        }
-    };
-
-    if (form) {
-        form.addEventListener('submit', (event) => {
-            if (paypalEnabled && form.dataset.paypalReady !== 'true') {
-                event.preventDefault();
-                showError('Please approve the PayPal popup to complete checkout.');
-            }
-        });
-    }
-
-    updateTotal();
-
-    if (paypalEnabled) {
-        const renderButtons = () => {
-            const paypalContainer = document.getElementById('paypal-buttons-shop');
-
-            if (!window.paypal) {
-                if (paypalContainer) {
-                    showError('PayPal SDK is not available.');
-                }
+            if (!form || !window.paypal) {
                 return;
             }
 
-            const options = {
+            const showError = (message) => {
+                if (paypalErrors) {
+                    paypalErrors.textContent = message;
+                    paypalErrors.style.display = 'block';
+                }
+            };
+
+            const clearError = () => {
+                if (paypalErrors) {
+                    paypalErrors.textContent = '';
+                    paypalErrors.style.display = 'none';
+                }
+            };
+
+            const updateTotal = () => {
+                const seats = seatsInput ? parseInt(seatsInput.value || '1', 10) : 1;
+                const computed = Number.isFinite(price) ? price * (Number.isFinite(seats) && seats > 0 ? seats : 1) : 0;
+                if (total) {
+                    total.textContent = `$${computed.toFixed(2)}`;
+                }
+            };
+
+            if (seatsInput) {
+                seatsInput.addEventListener('change', updateTotal);
+                seatsInput.addEventListener('input', updateTotal);
+            }
+
+            updateTotal();
+
+            const paypalContainer = document.getElementById('paypal-buttons-shop');
+            if (!paypalContainer) {
+                return;
+            }
+
+            window.paypal.Buttons({
                 style: {
                     layout: 'vertical',
                     color: 'gold',
@@ -207,14 +191,13 @@
                 },
                 createOrder: async () => {
                     clearError();
-                    if (!form) {
-                        throw new Error('Form not ready.');
-                    }
+
                     const payload = {
                         product_id: form.querySelector('input[name="product_id"]').value,
-                        seats_total: 1,
+                        seats_total: seatsInput ? parseInt(seatsInput.value || '1', 10) : 1,
                         domain: domainInput ? domainInput.value : null,
                     };
+
                     const response = await fetch('{{ route('paypal.orders.store') }}', {
                         method: 'POST',
                         headers: {
@@ -224,114 +207,123 @@
                         },
                         body: JSON.stringify(payload),
                     });
+
                     const data = await response.json();
                     if (!response.ok) {
                         throw new Error(data.message || 'Unable to create a PayPal order.');
                     }
-                    paypalOrderInput.value = data.order_id;
+
+                    if (paypalOrderInput) {
+                        paypalOrderInput.value = data.order_id;
+                    }
+
                     return data.order_id;
                 },
-                @section('content')
-                @if(!config('shop.enabled'))
-                    <div class="card" style="margin:2rem auto;max-width:500px;text-align:center;">
-                        <h2>Shop is currently unavailable</h2>
-                        <p>The shop has been disabled by the administrator. Please check back later.</p>
-                    </div>
-                @else
-                <header class="hero">
-                    <div>
-                        <p class="eyebrow">Shop</p>
-                        <h1>{{ $product->name }}</h1>
-                        <p class="lead">{{ $product->description ?: 'No marketing copy available yet.' }}</p>
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;align-items:center;">
-                        <a class="link" href="{{ route('shop') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">← Back to shop</a>
-                        <a class="link" href="{{ route('login') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Purchase in dashboard</a>
-                    </div>
-                </header>
-
-    const card = elements.create('card');
-    const form = document.getElementById('shop-stripe-form');
-    const domainInput = document.getElementById('shop-stripe-domain');
-    const intentInput = document.getElementById('shop-stripe-payment-intent');
-    const errorEl = document.getElementById('shop-stripe-errors');
-    const submitBtn = document.getElementById('shop-stripe-submit');
-
-    card.mount('#shop-stripe-card');
-
-    const showError = (message) => {
-        if (errorEl) {
-            errorEl.textContent = message;
-            errorEl.style.display = 'block';
-        }
-    };
-
-    const clearError = () => {
-        if (errorEl) {
-            errorEl.textContent = '';
-            errorEl.style.display = 'none';
-        }
-    };
-
-                @endif
-    const setLoading = (loading) => {
-        if (!submitBtn) return;
-        submitBtn.disabled = loading;
-        submitBtn.textContent = loading ? 'Processing…' : 'Pay with card';
-    };
-
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearError();
-            setLoading(true);
-
-            try {
-                const payload = {
-                    product_id: {{ $product->id }},
-                    domain: domainInput ? domainInput.value : null,
-                };
-
-                const response = await fetch('{{ route('stripe.intents.create') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    body: JSON.stringify(payload),
-                });
-
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.message || 'Unable to create a Stripe payment.');
-                }
-
-                const result = await stripe.confirmCardPayment(data.client_secret, {
-                    payment_method: {
-                        card,
-                    },
-                });
-
-                if (result.error) {
-                    throw new Error(result.error.message || 'Card payment failed.');
-                }
-
-                if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-                    if (intentInput) {
-                        intentInput.value = data.payment_intent_id;
-                    }
+                onApprove: () => {
+                    clearError();
                     form.submit();
-                } else {
-                    throw new Error('Stripe did not complete the payment.');
-                }
-            } catch (err) {
-                showError(err && err.message ? err.message : 'Card payment failed.');
-            } finally {
-                setLoading(false);
+                },
+                onError: (err) => {
+                    showError(err && err.message ? err.message : 'PayPal error.');
+                },
+            }).render(paypalContainer);
+        })();
+        </script>
+    @endif
+
+    @if ($stripeEnabled && $stripePublicKey)
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+        (function () {
+            const stripe = Stripe('{{ $stripePublicKey }}');
+            const elements = stripe.elements();
+            const card = elements.create('card');
+
+            const form = document.getElementById('shop-stripe-form');
+            const domainInput = document.getElementById('shop-stripe-domain');
+            const intentInput = document.getElementById('shop-stripe-payment-intent');
+            const errorEl = document.getElementById('shop-stripe-errors');
+            const submitBtn = document.getElementById('shop-stripe-submit');
+
+            if (!form) {
+                return;
             }
-        });
-    }
-})();
-</script>
+
+            card.mount('#shop-stripe-card');
+
+            const showError = (message) => {
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.style.display = 'block';
+                }
+            };
+
+            const clearError = () => {
+                if (errorEl) {
+                    errorEl.textContent = '';
+                    errorEl.style.display = 'none';
+                }
+            };
+
+            const setLoading = (loading) => {
+                if (!submitBtn) return;
+                submitBtn.disabled = loading;
+                submitBtn.textContent = loading ? 'Processing…' : 'Pay with card';
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                clearError();
+                setLoading(true);
+
+                try {
+                    const payload = {
+                        product_id: form.querySelector('input[name="product_id"]').value,
+                        domain: domainInput ? domainInput.value : null,
+                    };
+
+                    const response = await fetch('{{ route('stripe.intents.create') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Unable to create a Stripe payment.');
+                    }
+
+                    const result = await stripe.confirmCardPayment(data.client_secret, {
+                        payment_method: {
+                            card,
+                        },
+                    });
+
+                    if (result.error) {
+                        throw new Error(result.error.message || 'Card payment failed.');
+                    }
+
+                    if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                        if (intentInput) {
+                            intentInput.value = data.payment_intent_id;
+                        }
+                        form.submit();
+                        return;
+                    }
+
+                    throw new Error('Stripe did not complete the payment.');
+                } catch (err) {
+                    showError(err && err.message ? err.message : 'Card payment failed.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        })();
+        </script>
+    @endif
+@endif
 @endpush
