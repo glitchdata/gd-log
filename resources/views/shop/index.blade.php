@@ -44,8 +44,9 @@
                     </div>
                 </article>
             @empty
-            <p style="color:var(--muted);">No products are available yet. Please check back soon.</p>
-        @endforelse
-    </div>
-</section>
+                <p style="color:var(--muted);">No products are available yet. Please check back soon.</p>
+            @endforelse
+        </div>
+    </section>
+@endif
 @endsection
