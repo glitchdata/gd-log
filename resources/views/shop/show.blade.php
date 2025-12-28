@@ -3,6 +3,12 @@
 @section('title', 'Shop · ' . $product->name)
 
 @section('content')
+@if(!config('shop.enabled'))
+    <div class="card" style="margin:2rem auto;max-width:500px;text-align:center;">
+        <h2>Shop is currently unavailable</h2>
+        <p>The shop has been disabled by the administrator. Please check back later.</p>
+    </div>
+@else
 <header class="hero">
     <div>
         <p class="eyebrow">Shop</p>
@@ -122,7 +128,7 @@
     </section>
     @endif
 @endauth
-
+@endif
 @endsection
 
 @push('scripts')
