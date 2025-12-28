@@ -33,8 +33,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Created</th>
-                    <th>Occurred</th>
+                    <th>Time</th>
                     <th>Type</th>
                     <th>User</th>
                     <th>Source</th>
@@ -45,8 +44,7 @@
             <tbody>
                 @foreach ($logs as $log)
                     <tr>
-                        <td>{{ optional($log->created_at)->toDateTimeString() }}</td>
-                        <td>{{ optional($log->occurred_at)->toDateTimeString() ?? '—' }}</td>
+                        <td>{{ optional($log->occurred_at)->toDateTimeString() ?? optional($log->created_at)->toDateTimeString() ?? '—' }}</td>
                         <td>{{ $log->type }}</td>
                         <td>{{ $log->user_id ?? '—' }}</td>
                         <td>{{ $log->source ?? '—' }}</td>
