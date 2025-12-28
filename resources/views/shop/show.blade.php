@@ -225,42 +225,25 @@
                     paypalOrderInput.value = data.order_id;
                     return data.order_id;
                 },
-                onApprove: (data) => {
-                    clearError();
-                    if (paypalOrderInput) {
-                        paypalOrderInput.value = data.orderID;
-                    }
-                    if (form) {
-                        form.dataset.paypalReady = 'true';
-                        form.submit();
-                    }
-                },
-                onCancel: () => {
-                    showError('Checkout was cancelled.');
-                    clearOrder();
-                },
-                onError: (err) => {
-                    showError(err && err.message ? err.message : 'Payment reported an error.');
-                    clearOrder();
-                }
-            };
+                @section('content')
+                @if(!config('shop.enabled'))
+                    <div class="card" style="margin:2rem auto;max-width:500px;text-align:center;">
+                        <h2>Shop is currently unavailable</h2>
+                        <p>The shop has been disabled by the administrator. Please check back later.</p>
+                    </div>
+                @else
+                <header class="hero">
+                    <div>
+                        <p class="eyebrow">Shop</p>
+                        <h1>{{ $product->name }}</h1>
+                        <p class="lead">{{ $product->description ?: 'No marketing copy available yet.' }}</p>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;align-items:center;">
+                        <a class="link" href="{{ route('shop') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">← Back to shop</a>
+                        <a class="link" href="{{ route('login') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Purchase in dashboard</a>
+                    </div>
+                </header>
 
-            if (paypalContainer) {
-                window.paypal.Buttons(options).render('#paypal-buttons-shop');
-            }
-        };
-
-        renderButtons();
-    } else if (!window.paypal && document.getElementById('paypal-buttons-shop')) {
-        showError('PayPal SDK is not available.');
-    }
-})();
-</script>
-@if ($stripePublicKey)
-<script>
-(function () {
-    const stripe = Stripe('{{ $stripePublicKey }}');
-    const elements = stripe.elements();
     const card = elements.create('card');
     const form = document.getElementById('shop-stripe-form');
     const domainInput = document.getElementById('shop-stripe-domain');
@@ -284,6 +267,7 @@
         }
     };
 
+                @endif
     const setLoading = (loading) => {
         if (!submitBtn) return;
         submitBtn.disabled = loading;
