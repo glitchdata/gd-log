@@ -334,5 +334,4 @@
     }
 })();
 </script>
-@endif
 @endpush
