@@ -45,7 +45,12 @@
                         <td style="padding:0.5rem;white-space:nowrap;">{{ $log->created_at->toDateTimeString() }}</td>
                         <td style="padding:0.5rem;">{{ $log->type }}</td>
                         <td style="padding:0.5rem;">{{ $log->user_id ?? '—' }}</td>
-                        <td style="padding:0.5rem;font-family:monospace;white-space:pre-wrap;word-break:break-word;">{{ json_encode($log->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</td>
+                        <td style="padding:0.5rem;"> 
+                            <details>
+                                <summary style="cursor:pointer;user-select:none;font-weight:600;">Drill down</summary>
+                                <pre style="white-space:pre-wrap;word-break:break-word;margin:0;font-family:monospace;">{{ json_encode($log->context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                            </details>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
