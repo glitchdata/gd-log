@@ -25,7 +25,8 @@ class CertController extends Controller
 
         // If requested, perform a crt.sh Certificate Transparency lookup
         if ($useCrt) {
-            $query = urlencode('%' . ltrim($host, '%'));
+            // Use the host directly for crt.sh query (sending a leading '%' is rejected)
+            $query = urlencode($host);
             $url = "https://crt.sh/?q={$query}&output=json";
             try {
                 $opts = [
