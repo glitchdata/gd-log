@@ -22,29 +22,18 @@ class WhoisController extends Controller
             return response()->json(['error' => 'Invalid domain format.'], 422);
         }
 
-        // Try system 'whois' binary first
-        $output = null;
-        $returnVar = null;
-
-        if (function_exists('proc_open') || function_exists('shell_exec')) {
-            try {
-                $escaped = escapeshellarg($domain);
-                $cmd = "whois {$escaped} 2>&1";
-                $output = @shell_exec($cmd);
-            } catch (\Throwable $e) {
-                Log::debug('Whois shell_exec failed: '.$e->getMessage());
-                $output = null;
-            }
+        // Use PHP socket-based WHOIS lookup (no external binaries)
+        try {
+            $output = $this->socketWhois($domain);
+        } catch (\Throwable $e) {
+            Log::debug('Whois socket failed: '.$e->getMessage());
+            return response()->json(['error' => 'Whois lookup failed.'], 500);
         }
 
-        if (empty($output)) {
-            // Fallback: simple socket WHOIS lookup to whois.iana.org then follow referral
-            try {
-                $output = $this->socketWhois($domain);
-            } catch (\Throwable $e) {
-                Log::debug('Whois socket failed: '.$e->getMessage());
-                return response()->json(['error' => 'Whois lookup failed.'], 500);
-            }
+        // Cap the response size to avoid extremely large payloads
+        $max = 20000; // characters
+        if (is_string($output) && strlen($output) > $max) {
+            $output = substr($output, 0, $max) . "\n\n...truncated...";
         }
 
         return response()->json(['domain' => $domain, 'whois' => trim($output ?: '')]);
