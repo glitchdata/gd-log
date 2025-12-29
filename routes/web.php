@@ -39,8 +39,10 @@ Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');
 Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);
 
-Route::get('/shop', [ShopController::class, 'index'])->name('shop');
-Route::get('/shop/{product:product_code}', [ShopController::class, 'show'])->name('shop.products.show');
+if (config('shop.enabled')) {
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+    Route::get('/shop/{product:product_code}', [ShopController::class, 'show'])->name('shop.products.show');
+}
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
