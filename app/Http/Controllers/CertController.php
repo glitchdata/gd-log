@@ -84,7 +84,7 @@ class CertController extends Controller
                 // limit results to 100 entries
                 $arr = array_slice($arr, 0, 100);
 
-                return response()->json(['host' => $host, 'crt_sh' => $arr]);
+                return response()->json(['host' => $host, 'crt_sh' => $arr, 'raw' => $trimmed]);
             } catch (\Throwable $e) {
                 Log::debug('crt.sh lookup failed: '.$e->getMessage());
                 return response()->json(['error' => 'crt.sh lookup failed.'], 502);

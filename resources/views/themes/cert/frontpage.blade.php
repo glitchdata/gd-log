@@ -62,7 +62,14 @@ document.getElementById('cert-form').addEventListener('submit', async function (
             resultEl.textContent = err.error || JSON.stringify(err, null, 2);
         } else {
             const json = await res.json();
-            resultEl.textContent = JSON.stringify(json, null, 2);
+            // If server returned raw crt.sh text, prefer showing it verbatim
+            if (json.raw) {
+                resultEl.textContent = json.raw;
+            } else if (json.pem) {
+                resultEl.textContent = json.pem;
+            } else {
+                resultEl.textContent = JSON.stringify(json, null, 2);
+            }
         }
     } catch (err) {
         resultEl.textContent = String(err);
