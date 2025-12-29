@@ -15,10 +15,7 @@
                 <span>Host (or IP)</span>
                 <input type="text" name="host" placeholder="example.com" required>
             </label>
-            <label style="display:flex;align-items:center;gap:0.5rem;">
-                <input type="checkbox" name="crt" value="1" checked>
-                <span style="margin:0">Search Certificate Transparency (crt.sh)</span>
-            </label>
+            
             <div style="display:flex;gap:0.5rem;justify-content:flex-start;">
                 <button type="submit">Lookup</button>
                 @if(config('shop.enabled'))

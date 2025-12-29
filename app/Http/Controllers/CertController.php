@@ -15,7 +15,6 @@ class CertController extends Controller
         ]);
 
         $host = trim($request->input('host'));
-        $useCrt = $request->boolean('crt', false);
         $port = (int) ($request->input('port') ?: 443);
 
         // basic validation
@@ -23,73 +22,67 @@ class CertController extends Controller
             return response()->json(['error' => 'Invalid host format.'], 422);
         }
 
-        // If requested, perform a crt.sh Certificate Transparency lookup
-        if ($useCrt) {
-            // Use the host directly for crt.sh query (sending a leading '%' is rejected)
+        // Always attempt a crt.sh Certificate Transparency lookup first.
+        try {
             $query = urlencode($host);
             $url = "https://crt.sh/?q={$query}&output=json";
-            try {
-                $opts = [
-                    'http' => [
-                        'method' => 'GET',
-                        'timeout' => 8,
-                        'header' => "User-Agent: gd-log-cert-fetch/1.0\r\nAccept: application/json\r\n",
-                    ],
-                ];
-                $context = stream_context_create($opts);
-                $raw = @file_get_contents($url, false, $context);
-                if ($raw === false) {
-                    Log::debug('crt.sh returned false for '.$url);
-                    return response()->json(['error' => 'crt.sh lookup failed.'], 502);
-                }
-
+            $opts = [
+                'http' => [
+                    'method' => 'GET',
+                    'timeout' => 8,
+                    'header' => "User-Agent: gd-log-cert-fetch/1.0\r\nAccept: application/json\r\n",
+                ],
+            ];
+            $context = stream_context_create($opts);
+            $raw = @file_get_contents($url, false, $context);
+            if ($raw === false) {
+                Log::debug('crt.sh returned false for '.$url);
+            } else {
                 $trimmed = trim($raw);
 
                 // Quick check: if HTML returned, crt.sh likely served a human page (rate-limit or no JSON)
                 if (strlen($trimmed) > 0 && $trimmed[0] === '<') {
                     Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200));
-                    return response()->json(['error' => 'crt.sh returned non-JSON (HTML) response — possible rate limit or blocking.'], 502);
-                }
+                } else {
+                    // Try to decode raw JSON first
+                    $arr = json_decode($trimmed, true);
 
-                // Try to decode raw JSON first
-                $arr = json_decode($trimmed, true);
-
-                // If decode failed, try NDJSON (one JSON object per line)
-                if (!is_array($arr)) {
-                    $lines = preg_split('/\r\n|\n|\r/', $trimmed);
-                    $items = [];
-                    foreach ($lines as $line) {
-                        $line = trim($line);
-                        if ($line === '') continue;
-                        $decoded = json_decode($line, true);
-                        if (is_array($decoded)) {
-                            $items[] = $decoded;
+                    // If decode failed, try NDJSON (one JSON object per line)
+                    if (!is_array($arr)) {
+                        $lines = preg_split('/\r\n|\n|\r/', $trimmed);
+                        $items = [];
+                        foreach ($lines as $line) {
+                            $line = trim($line);
+                            if ($line === '') continue;
+                            $decoded = json_decode($line, true);
+                            if (is_array($decoded)) {
+                                $items[] = $decoded;
+                            }
+                        }
+                        if (!empty($items)) {
+                            $arr = $items;
+                        } else {
+                            // If NDJSON failed, try to extract a JSON array from the response
+                            if (preg_match('/(\[.*\])/s', $trimmed, $m)) {
+                                $candidate = $m[1];
+                                $arr = json_decode($candidate, true);
+                            }
                         }
                     }
-                    if (!empty($items)) {
-                        $arr = $items;
+
+                    if (is_array($arr)) {
+                        // limit results to 100 entries
+                        $arr = array_slice($arr, 0, 100);
+                        if (!empty($arr)) {
+                            return response()->json(['host' => $host, 'crt_sh' => $arr, 'raw' => $trimmed]);
+                        }
                     } else {
-                        // If NDJSON failed, try to extract a JSON array from the response
-                        if (preg_match('/(\[.*\])/s', $trimmed, $m)) {
-                            $candidate = $m[1];
-                            $arr = json_decode($candidate, true);
-                        }
+                        Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400));
                     }
                 }
-
-                if (!is_array($arr)) {
-                    Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400));
-                    return response()->json(['error' => 'Invalid crt.sh response (non-JSON or unexpected format).'], 502);
-                }
-
-                // limit results to 100 entries
-                $arr = array_slice($arr, 0, 100);
-
-                return response()->json(['host' => $host, 'crt_sh' => $arr, 'raw' => $trimmed]);
-            } catch (\Throwable $e) {
-                Log::debug('crt.sh lookup failed: '.$e->getMessage());
-                return response()->json(['error' => 'crt.sh lookup failed.'], 502);
             }
+        } catch (\Throwable $e) {
+            Log::debug('crt.sh lookup failed: '.$e->getMessage());
         }
 
         $timeout = 5;
