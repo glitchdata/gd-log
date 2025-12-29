@@ -16,7 +16,9 @@
             <input id="share-link" type="text" value="{{ $shareUrl }}" readonly style="flex:1;border-radius:0.75rem;padding:0.5rem 0.75rem;font-family:monospace;font-size:0.85rem;">
             <button id="copy-link" type="button" style="white-space:nowrap;">Copy</button>
         </div>
-        <a class="link" href="{{ route('api.lab') }}" style="font-weight:600;">Try another license →</a>
+        @if(config('apilab.enabled'))
+        <a class="link" href="{{ url('/api-lab') }}" style="font-weight:600;">Try another license →</a>
+        @endif
     </div>
 </header>
 
