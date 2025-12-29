@@ -19,6 +19,10 @@
                 <span>Port (optional)</span>
                 <input type="number" name="port" placeholder="443">
             </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;">
+                <input type="checkbox" name="crt" value="1">
+                <span style="margin:0">Search Certificate Transparency (crt.sh)</span>
+            </label>
             <div style="display:flex;gap:0.5rem;justify-content:flex-start;">
                 <button type="submit">Lookup</button>
                 @if(config('shop.enabled'))
