@@ -1,67 +1,70 @@
 @extends('layouts.app')
 
-@section('title', 'Glitchdata · Identity & Licensing')
+@section('title', 'Logs · Management')
 
 @section('content')
 <header class="hero">
     <div>
-        <p class="eyebrow">Glitchdata Platform</p>
-        <h1>Identity, licensing, and validation in one simple portal.</h1>
-        <p class="lead">Launch a secure dashboard for your team, grant software seats, and verify entitlements through a clean API toolkit.</p>
+        <p class="eyebrow">Operations</p>
+        <h1>Log management & observability</h1>
+        <p class="lead">Centralized access to event, external and application logs for troubleshooting and audits.</p>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
-            @if(config('shop.enabled'))
-            <button type="button" class="link button-reset" style="font-weight:600;" onclick="window.location='{{ route('shop') }}'">Explore the shop →</button>
+            <a class="link button-reset" style="font-weight:600;" href="{{ route('admin.event-logs.index') }}">Event Logs</a>
+            @if(config('admin.external_logs_enabled'))
+                <a class="link button-reset" style="font-weight:600;" href="{{ route('admin.external-logs.index') }}">External Logs</a>
             @endif
-            @if(config('apilab.enabled'))
-            <button type="button" class="link button-reset" onclick="window.location='{{ url('/api-lab') }}'">Test the API →</button>
+            <a class="link button-reset" style="font-weight:600;" href="{{ route('admin.logs.index') }}">App Log</a>
+            @if(config('admin.servers_enabled'))
+                <a class="link button-reset" style="font-weight:600;" href="{{ route('admin.servers.index') }}">Servers</a>
             @endif
-            <button type="button" class="link button-reset" onclick="window.location='{{ route('register') }}'">Create an account</button>
+            <a class="link button-reset" style="font-weight:600;" href="{{ route('admin.tools.license-validation') }}">License Validation</a>
         </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;align-items:center;margin-top:1rem;">
+        <a class="link" href="{{ route('admin.event-logs.index') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Browse Event Logs</a>
+        @if(config('admin.external_logs_enabled'))
+            <a class="link" href="{{ route('admin.external-logs.index') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">External Logs</a>
+        @endif
+        <a class="link" href="{{ route('admin.logs.index') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Application Log</a>
     </div>
 </header>
 
 <section class="card">
     <div class="grid">
         <article>
-            <p class="eyebrow" style="margin-bottom:0.35rem;">01 · Self-serve licenses</p>
-            <h2 style="margin-top:0;">Purchase seats from the catalog</h2>
-            <p>Browse curated products, preview pricing and duration, then assign licenses to yourself or your team members directly from the dashboard.</p>
-            @if(config('shop.enabled'))
-            <a class="link" href="{{ route('shop') }}">Visit the shop</a>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">Event Audits</p>
+            <h2 style="margin-top:0;">Investigate events</h2>
+            <p>Search and drill into user events, purchases, and system changes. Use event details to trace actions and timelines.</p>
+            <a class="link" href="{{ route('admin.event-logs.index') }}">Open Event Logs</a>
+        </article>
+        <article>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">Ingested Logs</p>
+            <h2 style="margin-top:0;">External sources</h2>
+            <p>Review logs from external systems and integrations. Filter by source, IP, and occurrence time to prioritize incidents.</p>
+            @if(config('admin.external_logs_enabled'))
+            <a class="link" href="{{ route('admin.external-logs.index') }}">Open External Logs</a>
             @endif
         </article>
         <article>
-            <p class="eyebrow" style="margin-bottom:0.35rem;">02 · API validation</p>
-            <h2 style="margin-top:0;">Verify entitlements programmatically</h2>
-            <p>Use the hosted API Lab to post license codes and seat counts, mirroring how your backend can confirm availability in production.</p>
-            @if(config('apilab.enabled'))
-            <a class="link" href="{{ url('/api-lab') }}">Open the API Lab</a>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">Infrastructure</p>
+            <h2 style="margin-top:0;">Servers & health</h2>
+            <p>Inspect registered servers, review recent heartbeats and logs to spot availability or configuration issues.</p>
+            @if(config('admin.servers_enabled'))
+            <a class="link" href="{{ route('admin.servers.index') }}">View Servers</a>
             @endif
-        </article>
-        <article>
-            <p class="eyebrow" style="margin-bottom:0.35rem;">03 · Admin tooling</p>
-            <h2 style="margin-top:0;">Manage users, products, and licenses</h2>
-            <p>Admins gain a polished console to edit products, onboard users, and audit allocations—no extra front-end build pipeline required.</p>
-            <a class="link" href="{{ route('login') }}">Sign in as admin</a>
         </article>
     </div>
 </section>
 
 <section class="card alt">
     <div style="display:flex;flex-direction:column;gap:1rem;">
-                <div>
-                        <p class="eyebrow" style="color:rgba(255,255,255,0.7);">API quickstart</p>
-                        <h2 style="margin:0;">`POST /api/licenses/validate`</h2>
-                        <p style="margin:0;color:rgba(255,255,255,0.8);">Send a license code plus requested seats to confirm availability, expiration, and seat counts—all responses structured for easy automation.</p>
-                </div>
-                <pre style="margin:0;background:rgba(0,0,0,0.3);padding:1rem;border-radius:0.9rem;color:#fff;font-family:monospace;overflow:auto;">{
-    "license_code": "ACTV-ABCD-1234",
-    "seats_requested": 3
-}</pre>
         <div>
-            @if(config('apilab.enabled'))
-            <a class="link" style="color:#fff;font-weight:700;" href="{{ url('/api-lab') }}">Send a sample request →</a>
-            @endif
+            <p class="eyebrow" style="color:rgba(255,255,255,0.7);">Quick actions</p>
+            <h2 style="margin:0;">Search, export, and investigate</h2>
+            <p style="margin:0;color:rgba(255,255,255,0.8);">Use the quick links above to jump straight into log lists and expand individual entries for full context and JSON payloads.</p>
+        </div>
+        <div>
+            <a class="link" style="color:#fff;font-weight:700;" href="{{ route('admin.event-logs.index') }}">Open log manager →</a>
         </div>
     </div>
 </section>
