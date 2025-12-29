@@ -1,101 +1,67 @@
 @extends('layouts.app')
 
-@section('title', 'License Validator · GD Login')
+@section('title', 'Glitchdata · License Portal')
 
 @section('content')
 <header class="hero">
     <div>
-        <p class="eyebrow">License Validator</p>
-        <h1>Validate licenses without leaving the browser.</h1>
-        <p class="lead">Quickly check license codes and seat counts using the hosted API.</p>
+        <p class="eyebrow">Glitchdata Platform</p>
+        <h1>Identity, licensing, and validation in one simple portal.</h1>
+        <p class="lead">Launch a secure dashboard for your team, grant software seats, and verify entitlements through a clean API toolkit.</p>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
+            @if(config('shop.enabled'))
+            <button type="button" class="link button-reset" style="font-weight:600;" onclick="window.location='{{ route('shop') }}'">Explore the shop →</button>
+            @endif
+            <button type="button" class="link button-reset" onclick="window.location='{{ route('api.lab') }}'">Test the API →</button>
+            <button type="button" class="link button-reset" onclick="window.location='{{ route('register') }}'">Create an account</button>
+        </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;align-items:center;">
-        <a class="link" href="{{ route('shop') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Browse products</a>
-        <a class="link" href="{{ route('register') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Create dashboard account</a>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.5rem;align-items:center;margin-top:1rem;">
+        <a class="link" href="{{ route('shop') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Shop</a>
+        <a class="link" href="{{ route('api.lab') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">API Lab</a>
+        <a class="link" href="{{ route('login') }}" style="display:block;text-align:center;padding:0.65rem 0.9rem;border:1px solid rgba(15,23,42,0.12);border-radius:0.9rem;background:#fff;box-shadow:0 6px 18px rgba(15,23,42,0.08);font-weight:600;">Sign in</a>
     </div>
 </header>
 
 <section class="card">
-    <form id="license-test-form" style="display:grid;gap:1rem;">
-        <label>
-            <span>License code</span>
-            <input type="text" name="license_code" placeholder="ABCD-EFGH-IJKL" required>
-        </label>
-        <button type="submit">Validate license</button>
-    </form>
-</section>
-
-<section class="card" id="result-card" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-        <h2 style="margin:0;">Response</h2>
-        <span id="status-pill" style="border-radius:999px;padding:0.25rem 0.75rem;font-weight:600;"></span>
+    <div class="grid">
+        <article>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">01 · Self-serve licenses</p>
+            <h2 style="margin-top:0;">Purchase seats from the catalog</h2>
+            <p>Browse curated products, preview pricing and duration, then assign licenses to yourself or your team members directly from the dashboard.</p>
+            @if(config('shop.enabled'))
+            <a class="link" href="{{ route('shop') }}">Visit the shop</a>
+            @endif
+        </article>
+        <article>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">02 · API validation</p>
+            <h2 style="margin-top:0;">Verify entitlements programmatically</h2>
+            <p>Use the hosted API Lab to post license codes and seat counts, mirroring how your backend can confirm availability in production.</p>
+            <a class="link" href="{{ route('api.lab') }}">Open the API Lab</a>
+        </article>
+        <article>
+            <p class="eyebrow" style="margin-bottom:0.35rem;">03 · Admin tooling</p>
+            <h2 style="margin-top:0;">Manage users, products, and licenses</h2>
+            <p>Admins gain a polished console to edit products, onboard users, and audit allocations—no extra front-end build pipeline required.</p>
+            <a class="link" href="{{ route('login') }}">Sign in as admin</a>
+        </article>
     </div>
-    <pre id="result-json" style="margin-top:1rem;background:var(--bg);padding:1rem;border-radius:0.75rem;overflow:auto;"></pre>
 </section>
 
-<section class="card" id="error-card" style="display:none;">
-    <h2 style="margin-top:0;">Error</h2>
-    <p id="error-message" style="color:var(--error);"></p>
+<section class="card alt">
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div>
+            <p class="eyebrow" style="color:rgba(255,255,255,0.7);">API quickstart</p>
+            <h2 style="margin:0;">`POST /api/licenses/validate`</h2>
+            <p style="margin:0;color:rgba(255,255,255,0.8);">Send a license code plus requested seats to confirm availability, expiration, and seat counts—all responses structured for easy automation.</p>
+        </div>
+        <pre style="margin:0;background:rgba(0,0,0,0.3);padding:1rem;border-radius:0.9rem;color:#fff;font-family:monospace;overflow:auto;">{
+    "license_code": "ACTV-ABCD-1234",
+    "seats_requested": 3
+}</pre>
+        <div>
+            <a class="link" style="color:#fff;font-weight:700;" href="{{ route('api.lab') }}">Send a sample request →</a>
+        </div>
+    </div>
 </section>
 @endsection
-
-@push('scripts')
-<script>
-(function () {
-    const form = document.getElementById('license-test-form');
-    const resultCard = document.getElementById('result-card');
-    const errorCard = document.getElementById('error-card');
-    const statusPill = document.getElementById('status-pill');
-    const resultJson = document.getElementById('result-json');
-    const errorMessage = document.getElementById('error-message');
-
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        errorCard.style.display = 'none';
-        resultCard.style.display = 'none';
-        const formData = new FormData(form);
-        const payload = {
-            license_code: formData.get('license_code'),
-        };
-
-        try {
-            const response = await fetch('{{ url('/api/licenses/validate') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            let json;
-            try {
-                json = await response.json();
-            } catch (parseError) {
-                throw new Error('Received an unreadable response from the API.');
-            }
-
-            if (!response.ok) {
-                const message = json?.reason || json?.message || 'Request failed with status ' + response.status;
-                throw new Error(message);
-            }
-
-            statusPill.textContent = json.valid ? 'VALID' : 'INVALID';
-            statusPill.style.background = json.valid ? 'rgba(22, 163, 74, 0.15)' : 'rgba(220, 38, 38, 0.15)';
-            statusPill.style.color = json.valid ? 'var(--success)' : 'var(--error)';
-            resultJson.textContent = JSON.stringify(json, null, 2);
-            resultCard.style.display = 'block';
-
-            if (!json.valid) {
-                const reason = json.reason ? 'License is not valid: ' + json.reason : 'License is not valid.';
-                errorMessage.textContent = reason;
-                errorCard.style.display = 'block';
-            }
-        } catch (error) {
-            resultCard.style.display = 'none';
-            errorMessage.textContent = error.message || 'Unable to reach the API.';
-            errorCard.style.display = 'block';
-        }
-    });
-})();
-</script>
-@endpush
