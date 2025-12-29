@@ -20,6 +20,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\StripePaymentController;
 use App\Http\Controllers\UserLicenseController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
+use App\Http\Controllers\WhoisController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,6 +36,9 @@ Route::get('/', function () {
 if (config('apilab.enabled')) {
     Route::view('/api-lab', 'api.lab')->name('api.lab');
 }
+
+// Whois lookup endpoint used by the whois frontpage theme
+Route::post('/whois/lookup', [WhoisController::class, 'lookup'])->name('whois.lookup');
 Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');
 Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);
