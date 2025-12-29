@@ -10,7 +10,9 @@
         <p class="lead">Launch a secure dashboard for your team, grant software seats, and verify entitlements through a clean API toolkit.</p>
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1rem;">
             @if(config('shop.enabled'))
-            <button type="button" class="link button-reset" style="font-weight:600;" onclick="window.location='{{ route('shop') }}'">Explore the shop →</button>
+            @if(config('shop.enabled'))
+                <button type="button" class="link button-reset" style="font-weight:600;" onclick="window.location='{{ url('/shop') }}'">Explore the shop →</button>
+            @endif
             @endif
             @if(config('apilab.enabled'))
             <button type="button" class="link button-reset" onclick="window.location='{{ url('/api-lab') }}'">Test the API →</button>
@@ -36,7 +38,9 @@
             <h2 style="margin-top:0;">Purchase seats from the catalog</h2>
             <p>Browse curated products, preview pricing and duration, then assign licenses to yourself or your team members directly from the dashboard.</p>
             @if(config('shop.enabled'))
-            <a class="link" href="{{ route('shop') }}">Visit the shop</a>
+            @if(config('shop.enabled'))
+                <a class="link" href="{{ url('/shop') }}">Visit the shop</a>
+            @endif
             @endif
         </article>
         <article>
