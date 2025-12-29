@@ -32,7 +32,9 @@ Route::get('/', function () {
 
     return view('home');
 })->name('home');
-Route::view('/api-lab', 'api.lab')->name('api.lab');
+if (config('apilab.enabled')) {
+    Route::view('/api-lab', 'api.lab')->name('api.lab');
+}
 Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');
 Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);

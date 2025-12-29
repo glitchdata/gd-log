@@ -12,7 +12,9 @@
             @if(config('shop.enabled'))
             <button type="button" class="link button-reset" style="font-weight:600;" onclick="window.location='{{ route('shop') }}'">Explore the shop →</button>
             @endif
+            @if(config('apilab.enabled'))
             <button type="button" class="link button-reset" onclick="window.location='{{ route('api.lab') }}'">Test the API →</button>
+            @endif
             <button type="button" class="link button-reset" onclick="window.location='{{ route('register') }}'">Create an account</button>
         </div>
     </div>
@@ -32,7 +34,9 @@
             <p class="eyebrow" style="margin-bottom:0.35rem;">02 · API validation</p>
             <h2 style="margin-top:0;">Verify entitlements programmatically</h2>
             <p>Use the hosted API Lab to post license codes and seat counts, mirroring how your backend can confirm availability in production.</p>
+            @if(config('apilab.enabled'))
             <a class="link" href="{{ route('api.lab') }}">Open the API Lab</a>
+            @endif
         </article>
         <article>
             <p class="eyebrow" style="margin-bottom:0.35rem;">03 · Admin tooling</p>
@@ -55,7 +59,9 @@
     "seats_requested": 3
 }</pre>
         <div>
+            @if(config('apilab.enabled'))
             <a class="link" style="color:#fff;font-weight:700;" href="{{ route('api.lab') }}">Send a sample request →</a>
+            @endif
         </div>
     </div>
 </section>

@@ -253,12 +253,16 @@
                     @if(config('shop.enabled'))
                         <a href="{{ route('shop') }}" class="{{ request()->routeIs('shop') || request()->routeIs('shop.products.show') ? 'nav-active' : '' }}">Shop</a>
                     @endif
-                    <a href="{{ route('api.lab') }}" class="{{ request()->routeIs('api.lab') ? 'nav-active' : '' }}">API Lab</a>
+                        @if(config('apilab.enabled'))
+                            <a href="{{ route('api.lab') }}" class="{{ request()->routeIs('api.lab') ? 'nav-active' : '' }}">API Lab</a>
+                        @endif
                 @else
                     @if(config('shop.enabled'))
                         <a href="{{ route('shop') }}" class="{{ request()->routeIs('shop') || request()->routeIs('shop.products.show') ? 'nav-active' : '' }}">Shop</a>
                     @endif
-                    <a href="{{ route('api.lab') }}" class="{{ request()->routeIs('api.lab') ? 'nav-active' : '' }}">API Lab</a>
+                        @if(config('apilab.enabled'))
+                            <a href="{{ route('api.lab') }}" class="{{ request()->routeIs('api.lab') ? 'nav-active' : '' }}">API Lab</a>
+                        @endif
                     <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'nav-active' : '' }}">Login</a>
                     <a href="{{ route('register') }}" class="{{ request()->routeIs('register') ? 'nav-active' : '' }}">Register</a>
                 @endauth
