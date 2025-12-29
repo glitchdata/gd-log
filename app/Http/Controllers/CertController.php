@@ -38,11 +38,32 @@ class CertController extends Controller
                 $context = stream_context_create($opts);
                 $raw = @file_get_contents($url, false, $context);
                 if ($raw === false) {
+                    Log::debug('crt.sh returned false for '.$url);
                     return response()->json(['error' => 'crt.sh lookup failed.'], 502);
                 }
-                $arr = json_decode($raw, true);
+
+                $trimmed = trim($raw);
+
+                // Quick check: if HTML returned, crt.sh likely served a human page (rate-limit or no JSON)
+                if (strlen($trimmed) > 0 && $trimmed[0] === '<') {
+                    Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200));
+                    return response()->json(['error' => 'crt.sh returned non-JSON (HTML) response — possible rate limit or blocking.'], 502);
+                }
+
+                // Try to decode raw JSON first
+                $arr = json_decode($trimmed, true);
+
+                // If decode failed, try to extract a JSON array from the response
                 if (!is_array($arr)) {
-                    return response()->json(['error' => 'Invalid crt.sh response.'], 502);
+                    if (preg_match('/(\[.*\])/s', $trimmed, $m)) {
+                        $candidate = $m[1];
+                        $arr = json_decode($candidate, true);
+                    }
+                }
+
+                if (!is_array($arr)) {
+                    Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400));
+                    return response()->json(['error' => 'Invalid crt.sh response (non-JSON or unexpected format).'], 502);
                 }
 
                 // limit results to 100 entries
