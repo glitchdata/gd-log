@@ -22,6 +22,7 @@ use App\Http\Controllers\UserLicenseController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
 use App\Http\Controllers\WhoisController;
 use App\Http\Controllers\CertController;
+use App\Http\Controllers\SubdomainController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,6 +43,8 @@ if (config('apilab.enabled')) {
 Route::post('/whois/lookup', [WhoisController::class, 'lookup'])->name('whois.lookup');
 // Cert lookup endpoint used by the cert frontpage theme
 Route::post('/cert/lookup', [CertController::class, 'lookup'])->name('cert.lookup');
+// Subdomains lookup endpoint used by the subdomains frontpage theme
+Route::post('/subdomains/lookup', [SubdomainController::class, 'lookup'])->name('subdomains.lookup');
 Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');
 Route::get('/license/validate/{key}', LicenseValidatorJsonController::class);
