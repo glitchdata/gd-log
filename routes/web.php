@@ -22,7 +22,16 @@ use App\Http\Controllers\UserLicenseController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
+Route::get('/', function () {
+    $theme = config('app.frontpage_theme', 'logs');
+    $view = 'themes.' . $theme . '.frontpage';
+
+    if (view()->exists($view)) {
+        return view($view);
+    }
+
+    return view('home');
+})->name('home');
 Route::view('/api-lab', 'api.lab')->name('api.lab');
 Route::get('/license/{license_code}', PublicLicenseValidatorController::class)
     ->name('licenses.validator');

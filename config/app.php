@@ -69,6 +69,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontpage Theme
+    |--------------------------------------------------------------------------
+    |
+    | The frontpage can be provided by a theme-specific view located at
+    | `resources/views/themes/{theme}/frontpage.blade.php`. Set the active
+    | theme with the `FRONTPAGE_THEME` environment variable.
+    |
+    */
+    'frontpage_theme' => env('FRONTPAGE_THEME', 'logs'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
