@@ -53,11 +53,26 @@ class CertController extends Controller
                 // Try to decode raw JSON first
                 $arr = json_decode($trimmed, true);
 
-                // If decode failed, try to extract a JSON array from the response
+                // If decode failed, try NDJSON (one JSON object per line)
                 if (!is_array($arr)) {
-                    if (preg_match('/(\[.*\])/s', $trimmed, $m)) {
-                        $candidate = $m[1];
-                        $arr = json_decode($candidate, true);
+                    $lines = preg_split('/\r\n|\n|\r/', $trimmed);
+                    $items = [];
+                    foreach ($lines as $line) {
+                        $line = trim($line);
+                        if ($line === '') continue;
+                        $decoded = json_decode($line, true);
+                        if (is_array($decoded)) {
+                            $items[] = $decoded;
+                        }
+                    }
+                    if (!empty($items)) {
+                        $arr = $items;
+                    } else {
+                        // If NDJSON failed, try to extract a JSON array from the response
+                        if (preg_match('/(\[.*\])/s', $trimmed, $m)) {
+                            $candidate = $m[1];
+                            $arr = json_decode($candidate, true);
+                        }
                     }
                 }
 
