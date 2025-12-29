@@ -35,7 +35,7 @@
 
 <section class="card">
     <h2>Result</h2>
-    <pre id="cert-result" style="white-space:pre-wrap;max-height:60vh;overflow:auto;padding:1rem;background:#0f172a;color:#e6eef8;border-radius:0.5rem;"></pre>
+    <div id="cert-result" style="max-height:60vh;overflow:auto;padding:0.5rem;"></div>
 </section>
 
 @push('scripts')
@@ -59,24 +59,92 @@ document.getElementById('cert-form').addEventListener('submit', async function (
 
         if (!res.ok) {
             const err = await res.json().catch(()=>({error:res.statusText}));
-            resultEl.textContent = err.error || JSON.stringify(err, null, 2);
+            resultEl.innerHTML = `<pre style="white-space:pre-wrap;padding:1rem;background:#111;color:#fff;border-radius:0.4rem;">${escapeHtml(err.error || JSON.stringify(err, null, 2))}</pre>`;
         } else {
             const json = await res.json();
-            // If server returned raw crt.sh text, prefer showing it verbatim
-            if (json.raw) {
-                resultEl.textContent = json.raw;
+            // Build structured view
+            resultEl.innerHTML = '';
+            if (json.crt_sh) {
+                const container = document.createElement('div');
+                const list = document.createElement('div');
+                list.style.display = 'grid';
+                list.style.gap = '0.5rem';
+                json.crt_sh.forEach((item, idx) => {
+                    const d = document.createElement('details');
+                    const s = document.createElement('summary');
+                    s.textContent = item.name_value || item.common_name || (`Entry ${idx+1}`);
+                    d.appendChild(s);
+                    const pre = document.createElement('pre');
+                    pre.style.whiteSpace = 'pre-wrap';
+                    pre.style.background = '#071029';
+                    pre.style.color = '#dbeafe';
+                    pre.style.padding = '0.75rem';
+                    pre.style.borderRadius = '0.4rem';
+                    pre.textContent = JSON.stringify(item, null, 2);
+                    d.appendChild(pre);
+                    list.appendChild(d);
+                });
+                container.appendChild(list);
+                // raw dump toggle
+                if (json.raw) {
+                    const rawD = document.createElement('details');
+                    const rawS = document.createElement('summary');
+                    rawS.textContent = 'Raw crt.sh response';
+                    rawD.appendChild(rawS);
+                    const rawPre = document.createElement('pre');
+                    rawPre.style.whiteSpace = 'pre-wrap';
+                    rawPre.style.background = '#071029';
+                    rawPre.style.color = '#dbeafe';
+                    rawPre.style.padding = '0.75rem';
+                    rawPre.style.borderRadius = '0.4rem';
+                    rawPre.textContent = json.raw;
+                    rawD.appendChild(rawPre);
+                    container.appendChild(rawD);
+                }
+                resultEl.appendChild(container);
             } else if (json.pem) {
-                resultEl.textContent = json.pem;
+                const pemD = document.createElement('details');
+                const pemS = document.createElement('summary');
+                pemS.textContent = 'Peer certificate (PEM)';
+                pemD.appendChild(pemS);
+                const pemPre = document.createElement('pre');
+                pemPre.style.whiteSpace = 'pre-wrap';
+                pemPre.style.background = '#071029';
+                pemPre.style.color = '#dbeafe';
+                pemPre.style.padding = '0.75rem';
+                pemPre.style.borderRadius = '0.4rem';
+                pemPre.textContent = json.pem;
+                pemD.appendChild(pemPre);
+                resultEl.appendChild(pemD);
+                if (json.parsed) {
+                    const parsedD = document.createElement('details');
+                    const parsedS = document.createElement('summary');
+                    parsedS.textContent = 'Parsed certificate fields';
+                    parsedD.appendChild(parsedS);
+                    const parsedPre = document.createElement('pre');
+                    parsedPre.style.whiteSpace = 'pre-wrap';
+                    parsedPre.style.background = '#071029';
+                    parsedPre.style.color = '#dbeafe';
+                    parsedPre.style.padding = '0.75rem';
+                    parsedPre.style.borderRadius = '0.4rem';
+                    parsedPre.textContent = JSON.stringify(json.parsed, null, 2);
+                    parsedD.appendChild(parsedPre);
+                    resultEl.appendChild(parsedD);
+                }
             } else {
-                resultEl.textContent = JSON.stringify(json, null, 2);
+                resultEl.innerHTML = `<pre style="white-space:pre-wrap;padding:1rem;background:#111;color:#fff;border-radius:0.4rem;">${escapeHtml(JSON.stringify(json, null, 2))}</pre>`;
             }
         }
     } catch (err) {
-        resultEl.textContent = String(err);
+        resultEl.innerHTML = `<pre style="white-space:pre-wrap;padding:1rem;background:#111;color:#fff;border-radius:0.4rem;">${escapeHtml(String(err))}</pre>`;
     } finally {
         btn.disabled = false;
     }
 });
+
+function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 </script>
 @endpush
 

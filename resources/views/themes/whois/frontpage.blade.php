@@ -30,7 +30,7 @@
 
 <section class="card">
     <h2>Result</h2>
-    <pre id="whois-result" style="white-space:pre-wrap;max-height:50vh;overflow:auto;padding:1rem;background:#0f172a;color:#e6eef8;border-radius:0.5rem;"></pre>
+    <div id="whois-result" style="max-height:50vh;overflow:auto;padding:0.5rem;"></div>
 </section>
 
 @push('scripts')
@@ -54,17 +54,34 @@ document.getElementById('whois-form').addEventListener('submit', async function 
 
         if (!res.ok) {
             const err = await res.json().catch(()=>({error:res.statusText}));
-            resultEl.textContent = err.error || JSON.stringify(err, null, 2);
+            resultEl.innerHTML = `<pre style="white-space:pre-wrap;padding:1rem;background:#111;color:#fff;border-radius:0.4rem;">${escapeHtml(err.error || JSON.stringify(err, null, 2))}</pre>`;
         } else {
             const json = await res.json();
-            resultEl.textContent = json.whois || '(no data)';
+            resultEl.innerHTML = '';
+            const d = document.createElement('details');
+            const s = document.createElement('summary');
+            s.textContent = 'Raw WHOIS output';
+            d.appendChild(s);
+            const pre = document.createElement('pre');
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.background = '#071029';
+            pre.style.color = '#dbeafe';
+            pre.style.padding = '0.75rem';
+            pre.style.borderRadius = '0.4rem';
+            pre.textContent = json.whois || '(no data)';
+            d.appendChild(pre);
+            resultEl.appendChild(d);
         }
     } catch (err) {
-        resultEl.textContent = String(err);
+        resultEl.innerHTML = `<pre style="white-space:pre-wrap;padding:1rem;background:#111;color:#fff;border-radius:0.4rem;">${escapeHtml(String(err))}</pre>`;
     } finally {
         btn.disabled = false;
     }
 });
+
+function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 </script>
 @endpush
 
