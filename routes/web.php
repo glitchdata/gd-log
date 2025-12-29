@@ -23,7 +23,7 @@ use App\Http\Controllers\Admin\LogController as AdminLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $theme = config('app.frontpage_theme', 'logs');
+    $theme = config('frontpage.theme', 'default');
     $view = 'themes.' . $theme . '.frontpage';
 
     if (view()->exists($view)) {
