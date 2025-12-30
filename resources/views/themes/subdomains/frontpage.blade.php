@@ -4,7 +4,7 @@
 <header class="hero">
     <div>
         <p class="eyebrow">Subdomains</p>
-        <h1>Subdomain enumeration (crt.sh)</h1>
+        <h1>Subdomain enumeration</h1>
         <p class="lead">Query Certificate Transparency logs for certificates containing the target host and extract observed subdomains.</p>
     </div>
 
