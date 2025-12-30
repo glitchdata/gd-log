@@ -75,7 +75,21 @@ document.getElementById('subdomains-form').addEventListener('submit', async func
 
             resultEl.appendChild(list);
 
-            // raw crt.sh details intentionally omitted for privacy and brevity
+            if (json.raw) {
+                const rawD = document.createElement('details');
+                const rawS = document.createElement('summary');
+                rawS.textContent = 'Raw crt.sh response (snippet)';
+                rawD.appendChild(rawS);
+                const rawPre = document.createElement('pre');
+                rawPre.style.whiteSpace = 'pre-wrap';
+                rawPre.style.background = '#071029';
+                rawPre.style.color = '#dbeafe';
+                rawPre.style.padding = '0.75rem';
+                rawPre.style.borderRadius = '0.4rem';
+                rawPre.textContent = json.raw;
+                rawD.appendChild(rawPre);
+                resultEl.appendChild(rawD);
+            }
         }
     } catch (err) {
         resultEl.innerHTML = `<pre style="white-space:pre-wrap;padding:1rem;background:#111;color:#fff;border-radius:0.4rem;">${escapeHtml(String(err))}</pre>`;

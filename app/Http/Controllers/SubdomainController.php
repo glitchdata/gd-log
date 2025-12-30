@@ -41,7 +41,7 @@ class SubdomainController extends Controller
 
             if (strlen($trimmed) > 0 && $trimmed[0] === '<') {
                 Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200));
-                return response()->json(['error' => 'crt.sh returned non-JSON (HTML) response — possible rate limit or blocking.'], 502);
+                return response()->json(['error' => 'crt.sh returned non-JSON (HTML) response — possible rate limit or blocking.','raw'=>substr($trimmed,0,400)], 502);
             }
 
             $arr = json_decode($trimmed, true);
@@ -69,7 +69,7 @@ class SubdomainController extends Controller
 
             if (!is_array($arr)) {
                 Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400));
-                return response()->json(['error' => 'Invalid crt.sh response.'], 502);
+                return response()->json(['error' => 'Invalid crt.sh response.','raw'=>substr($trimmed,0,400)], 502);
             }
 
             $subs = [];
@@ -98,7 +98,7 @@ class SubdomainController extends Controller
 
             sort($filtered, SORT_NATURAL | SORT_FLAG_CASE);
 
-            return response()->json(['host'=>$host,'count'=>count($filtered),'subdomains'=>$filtered]);
+            return response()->json(['host'=>$host,'count'=>count($filtered),'subdomains'=>$filtered,'raw'=>$trimmed]);
         } catch (\Throwable $e) {
             Log::debug('crt.sh lookup failed: '.$e->getMessage());
             return response()->json(['error'=>'crt.sh lookup failed.'], 502);
