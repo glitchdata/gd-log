@@ -33,14 +33,16 @@ class SubdomainController extends Controller
             $context = stream_context_create($opts);
             $raw = @file_get_contents($url, false, $context);
             if ($raw === false) {
-                Log::debug('crt.sh returned false for '.$url);
+                $last = error_get_last();
+                Log::debug('crt.sh returned false for '.$url, ['php_error' => $last]);
                 return response()->json(['error' => 'crt.sh lookup failed.'], 502);
             }
 
             $trimmed = trim($raw);
 
             if (strlen($trimmed) > 0 && $trimmed[0] === '<') {
-                Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200));
+                $hdrs = isset($http_response_header) ? $http_response_header : null;
+                Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200), ['headers' => $hdrs]);
                 return response()->json(['error' => 'crt.sh returned non-JSON (HTML) response — possible rate limit or blocking.','raw'=>substr($trimmed,0,400)], 502);
             }
 
@@ -68,7 +70,8 @@ class SubdomainController extends Controller
             }
 
             if (!is_array($arr)) {
-                Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400));
+                $hdrs = isset($http_response_header) ? $http_response_header : null;
+                Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400), ['headers' => $hdrs]);
                 return response()->json(['error' => 'Invalid crt.sh response.','raw'=>substr($trimmed,0,400)], 502);
             }
 
