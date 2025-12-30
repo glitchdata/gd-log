@@ -78,7 +78,7 @@ document.getElementById('subdomains-form').addEventListener('submit', async func
             if (json.raw) {
                 const rawD = document.createElement('details');
                 const rawS = document.createElement('summary');
-                rawS.textContent = 'Raw crt.sh response (snippet)';
+                rawS.textContent = 'Detailed Response';
                 rawD.appendChild(rawS);
                 const rawPre = document.createElement('pre');
                 rawPre.style.whiteSpace = 'pre-wrap';

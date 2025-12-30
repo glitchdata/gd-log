@@ -36,13 +36,15 @@ class CertController extends Controller
             $context = stream_context_create($opts);
             $raw = @file_get_contents($url, false, $context);
             if ($raw === false) {
-                Log::debug('crt.sh returned false for '.$url);
+                $last = error_get_last();
+                Log::debug('crt.sh returned false for '.$url, ['php_error' => $last]);
             } else {
                 $trimmed = trim($raw);
 
                 // Quick check: if HTML returned, crt.sh likely served a human page (rate-limit or no JSON)
                 if (strlen($trimmed) > 0 && $trimmed[0] === '<') {
-                    Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200));
+                    $hdrs = isset($http_response_header) ? $http_response_header : null;
+                    Log::debug('crt.sh returned HTML for '.$host.'; snippet: '.substr($trimmed,0,200), ['headers' => $hdrs]);
                 } else {
                     // Try to decode raw JSON first
                     $arr = json_decode($trimmed, true);
@@ -77,7 +79,8 @@ class CertController extends Controller
                             return response()->json(['host' => $host, 'crt_sh' => $arr, 'raw' => $trimmed]);
                         }
                     } else {
-                        Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400));
+                        $hdrs = isset($http_response_header) ? $http_response_header : null;
+                        Log::debug('crt.sh invalid JSON for '.$host.'; raw-snippet: '.substr($trimmed,0,400), ['headers' => $hdrs]);
                     }
                 }
             }
