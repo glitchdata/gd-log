@@ -1,3 +1,34 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Compact, centered pagination styles for Laravel paginator */
+.pagination {
+	display: flex;
+	gap: 0.35rem;
+	list-style: none;
+	padding: 0;
+	margin: 0.25rem 0 0 0;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.95rem;
+}
+.pagination li {
+	display: inline-flex;
+}
+.pagination li a,
+.pagination li span {
+	padding: 0.35rem 0.6rem;
+	border-radius: 0.6rem;
+	border: 1px solid rgba(15,23,42,0.06);
+	background: #fff;
+	color: var(--text);
+	font-weight: 600;
+	text-decoration: none;
+}
+.pagination li span[aria-current] {
+	background: rgba(15,23,42,0.04);
+}
+.pagination li a:hover {
+	background: rgba(15,23,42,0.06);
+}

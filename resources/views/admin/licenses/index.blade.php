@@ -80,8 +80,8 @@
         </table>
     </div>
 
-    <div style="margin-top:1rem;">
-        {{ $licenses->links() }}
+    <div style="margin-top:1rem;display:flex;justify-content:center;">
+        {{ $licenses->onEachSide(1)->links() }}
     </div>
 </div>
 @endsection
