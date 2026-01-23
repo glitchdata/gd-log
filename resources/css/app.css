@@ -36,10 +36,10 @@
 /* Icon-free pagination layout */
 .pagination-text {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 0.75rem;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: center;
 	font-size: 0.95rem;
 	width: 100%;
 }
@@ -55,7 +55,7 @@
 	flex-wrap: wrap;
 	gap: 0.35rem;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: center;
 }
 .pagination-text__link,
 .pagination-text__current,
@@ -81,14 +81,7 @@
 	background: rgba(15,23,42,0.08);
 }
 
-@media (max-width: 640px) {
-	.pagination-text {
-		justify-content: center;
-	}
-	.pagination-text__links {
-		justify-content: center;
-	}
-}
+
 
 /* Constrain inline icons inside interactive elements and tables */
 a svg,
