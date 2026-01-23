@@ -33,6 +33,52 @@
 	background: rgba(15,23,42,0.06);
 }
 
+/* Icon-free pagination layout */
+.pagination-text {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.95rem;
+}
+.pagination-text__summary {
+	color: var(--muted);
+	font-size: 0.85rem;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+.pagination-text__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	align-items: center;
+	justify-content: center;
+}
+.pagination-text__link,
+.pagination-text__current,
+.pagination-text__disabled,
+.pagination-text__ellipsis {
+	padding: 0.35rem 0.6rem;
+	border-radius: 0.6rem;
+	border: 1px solid rgba(15,23,42,0.08);
+	background: #fff;
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--text);
+}
+.pagination-text__current {
+	background: rgba(15,23,42,0.06);
+}
+.pagination-text__disabled,
+.pagination-text__ellipsis {
+	color: var(--muted);
+	background: transparent;
+}
+.pagination-text__link:hover {
+	background: rgba(15,23,42,0.08);
+}
+
 /* Constrain inline icons inside interactive elements and tables */
 a svg,
 .link svg,

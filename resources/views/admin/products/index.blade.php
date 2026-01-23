@@ -72,7 +72,7 @@
         </table>
     </div>
     <div style="margin-top:1rem;">
-        {{ $products->links() }}
+        {{ $products->onEachSide(1)->links('vendor.pagination.compact-text') }}
     </div>
 </div>
 @endsection

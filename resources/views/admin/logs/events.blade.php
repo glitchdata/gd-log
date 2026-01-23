@@ -57,7 +57,7 @@
         </table>
     </div>
     <div style="margin-top:1rem;">
-        {{ $logs->links() }}
+        {{ $logs->onEachSide(1)->links('vendor.pagination.compact-text') }}
     </div>
 @endif
 @endsection

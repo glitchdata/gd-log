@@ -81,7 +81,7 @@
     </div>
 
     <div style="margin-top:1rem;display:flex;justify-content:center;">
-        {{ $licenses->onEachSide(1)->links() }}
+        {{ $licenses->onEachSide(1)->links('vendor.pagination.compact-text') }}
     </div>
 </div>
 @endsection

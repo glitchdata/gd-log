@@ -78,7 +78,7 @@
     </div>
 
     <div style="margin-top:1rem;">
-        {{ $servers->links() }}
+        {{ $servers->onEachSide(1)->links('vendor.pagination.compact-text') }}
     </div>
 </div>
 @endsection

@@ -62,7 +62,7 @@
     </div>
 
     <div class="mt-4">
-        {{ $logs->links() }}
+           {{ $logs->onEachSide(1)->links('vendor.pagination.compact-text') }}
     </div>
 @endif
 @endsection
