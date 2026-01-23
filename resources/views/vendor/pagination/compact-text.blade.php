@@ -1,6 +1,5 @@
 @if ($paginator->hasPages())
     <nav role="navigation" aria-label="Pagination Navigation" class="pagination-text">
-        <div class="pagination-text__summary">Page {{ $paginator->currentPage() }} of {{ $paginator->lastPage() }}</div>
         <div class="pagination-text__links">
             @if ($paginator->onFirstPage())
                 <span class="pagination-text__disabled" aria-disabled="true">Previous</span>

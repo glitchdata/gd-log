@@ -43,23 +43,7 @@
 	font-size: 0.95rem;
 	width: 100%;
 }
-.pagination-text__summary {
-	color: var(--muted);
-	font-size: 0.85rem;
-	letter-spacing: 0.02em;
-	text-transform: uppercase;
-	white-space: nowrap;
-}
-.pagination-text__links {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.35rem;
-	align-items: center;
-	justify-content: center;
-}
-.pagination-text__link,
-.pagination-text__current,
-.pagination-text__disabled,
+
 .pagination-text__ellipsis {
 	padding: 0.35rem 0.6rem;
 	border-radius: 0.6rem;
