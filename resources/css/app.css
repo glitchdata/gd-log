@@ -32,3 +32,16 @@
 .pagination li a:hover {
 	background: rgba(15,23,42,0.06);
 }
+
+/* Constrain inline icons inside interactive elements and tables */
+a svg,
+.link svg,
+button svg,
+.admin-nav svg,
+table svg,
+td svg,
+th svg {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+}
